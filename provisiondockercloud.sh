@@ -12,6 +12,5 @@ number=$4
 
 for x in `seq -f "%03g" 0 "$number"`;do
   hostname=lheinric-recast-dockernode-"$x"
-  ./provisiondockerhost.sh $image $flavor $hostname $queue
-  ./delegate_proxy.sh $hostname
+  ./provisiondockerhost.sh $image $flavor $hostname $queue && ./delegate_proxy.sh $hostname
 done

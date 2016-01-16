@@ -19,7 +19,7 @@ cat << EOFOUT > $tmpfile
 
 rm -rf /etc/krb5.keytab
 cern-get-keytab
-sleep 60
+sleep 1000
 cern-get-certificate --autoenroll --grid
 
 usermod -aG docker recast
@@ -49,7 +49,7 @@ localSetupEmi
 fi
   
 thehostname="$hostname"
-myproxy-logon -l lheinric -k "recast_\$thehostname" -n --voms atlas
+myproxy-logon -l lheinric -k "new_recast_\$thehostname" -n --voms atlas
 voms-proxy-info --all
 EOF_GMP
 
@@ -130,7 +130,13 @@ export RECAST_SHIP_PORT=2022
 export CELERY_REDIS_HOST=localhost
 export CELERY_REDIS_PORT=6379
 export CELERY_REDIS_DB=0
+export CAP_USER=lukas
+export CAP_ACCESSKEY=YXNkbmZrbGFqbmZsawo=
+export CAP_HOST='https://pseudo-cap.herokuapp.com'
 EOF_USER_DATA
+
+#update code
+(cd /home/recast/code/recast_plugin && git pull)
 
 
 EOFOUT
@@ -139,4 +145,4 @@ print OK
 
 echo "::::wrote user_data to $tmpfile"
 
-nova boot --image $image --flavor $flavor --key_name openstack --user_data $tmpfile $hostname --meta landb-os=linux --meta landb-osversion='Centos'
+openstack server create --image $image --flavor $flavor --key-name openstack --user-data $tmpfile $hostname --property landb-os=linux --property landb-osversion='Centos'
