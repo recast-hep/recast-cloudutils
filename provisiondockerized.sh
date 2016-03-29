@@ -1,4 +1,6 @@
 #!/bin/zsh
+set -e
+#set -x
 
 if [[ -z "$1" ]];then
   echo "usage: provisionmachine.sh <image> <flavor> <hostname> <queue>"
@@ -9,8 +11,6 @@ image=$1
 flavor=$2
 hostname=$3
 queue=$4
-
-echo "OK"
 
 tmpfile=$(mktemp)
 cat << EOFOUT > $tmpfile
@@ -134,41 +134,24 @@ ssh-keyscan -t rsa svn.cern.ch >> ~/.ssh/known_hosts
 
 echo "\$(date) ::::RECAST:::: done with setting up auth"
 
-cat << EOF_USER_DATA > /home/recast/user_data.sh
-#!/bin/zsh
-export RECAST_PLUGINHOMEDIR=code
+echo "\$(date) ::::RECAST:::: pulling plugin"
+
+docker pull lukasheinrich/recast-cap-demo
+
+echo "\$(date) ::::RECAST:::: pulling compose manifest"
+curl -o /home/recast/compose.yml https://gist.githubusercontent.com/lukasheinrich/b239356e6714d8578564/raw/91a0d2bce03b8c72bd99b8a9db79bc3f2a2aa816/compose.yml
+
+mkdir /home/recast/workdirsdata
+cat << STARTNEWOUT > /home/recast/startcompose.sh
+#!/bin/sh
+cd /home/recast
+export RECAST_IN_DOCKER_WORKDIRS_VOL=/home/recast/workdirsdata
 export RECAST_QUEUE=$queue
-export RECAST_SHIP_USER=analysis
-export RECAST_SHIP_HOST=localhost
-export RECAST_SHIP_PORT=2022
-export CELERY_REDIS_HOST=localhost
-export CELERY_REDIS_PORT=6379
-export CELERY_REDIS_DB=0
-export CAP_USER=lukas
-export CAP_ACCESSKEY=YXNkbmZrbGFqbmZsawo=
-export CAP_HOST='https://pseudo-cap.herokuapp.com'
-EOF_USER_DATA
-
-echo "\$(date) ::::RECAST:::: done with setting up user data"
-
-
-
-echo "\$(date) ::::RECAST:::: updating code"
-
-#update code
-echo "updating the following"
-find /home/recast/code -name '.git'
-
-find /home/recast/code -name '.git'|xargs dirname|while read d;do echo update \$d && (cd  \$d && git pull);done
-
-
-echo "\$(date) ::::RECAST:::: code update complete"
-
+docker-compose -f compose.yml up 
+STARTNEWOUT
+chmod +x startcompose.sh
 
 EOFOUT
 
-print OK
-
 echo "::::wrote user_data to $tmpfile"
-
 openstack server create --image $image --flavor $flavor --key-name openstack --user-data $tmpfile $hostname --property landb-os=linux --property landb-osversion='Centos'
