@@ -8,10 +8,17 @@ def uname():
     run('uname -a')
 
 def cvmfs_probe():
-    run('echo $hostname && cvmfs_config probe')
+    run('cvmfs_config probe')
 
 def restart():
-    run('shutdown -r now')
+    run('shutdown -r 10')
 
 def docker_ps():
     run('docker ps')
+
+def resetup_head_ssh(headhost):
+    run('ssh-keygen -R {0}'.format(headhost))
+    run('ssh-keyscan -t rsa {0} > ~/.ssh/known_hosts'.format(headhost))
+
+def check_ssh(headhost):
+    run('ssh root@{0} "echo ssh ok."'.format(headhost))
