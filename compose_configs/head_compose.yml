@@ -17,3 +17,9 @@ services:
       - CELERY_REDIS_DB=0
     volumes:
        - /recastresults:/recastresults
+  monitor:
+    image: kamon/grafana_graphite`
+    ports:
+      - "8080:80"
+      - "8081:81"
+      - "8125:8125/udp"

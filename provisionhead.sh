@@ -22,8 +22,15 @@ echo "\$(date) ::::RECAST:::: setting up headnode"
 curl -fsSL https://get.docker.com/ | sh
 chkconfig docker on
 service docker start
+
 docker pull lukasheinrich/recast-backend
 docker pull redis
+docker pull kamon/grafana_graphite
+
+iptables -A INPUT -p udp --dport 8125 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+
+
 curl -L https://github.com/docker/compose/releases/download/1.6.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 echo $worker_pubkey >> ~/.ssh/authorized_keys 

@@ -138,7 +138,7 @@ echo "\$(date) ::::RECAST:::: done with setting up auth"
 
 curl https://raw.githubusercontent.com/recast-hep/recast-cloudutils/master/config_files/diamond.conf > /etc/diamond/diamond.conf
 sed -i 's|__RECAST_MONITOR_HOST__|$headnode|' /etc/diamond/diamond.conf
-service diamond restart
+#service diamond restart
 
 echo "\$(date) ::::RECAST:::: pulling plugin"
 
