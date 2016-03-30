@@ -139,7 +139,7 @@ echo "\$(date) ::::RECAST:::: pulling plugin"
 docker pull lukasheinrich/recast-cap-demo
 
 echo "\$(date) ::::RECAST:::: pulling compose manifest"
-curl -o /home/recast/compose.yml https://gist.githubusercontent.com/lukasheinrich/b239356e6714d8578564/raw/91a0d2bce03b8c72bd99b8a9db79bc3f2a2aa816/compose.yml
+curl -o /home/recast/compose.yml https://github.com/recast-hep/recast-cloudutils/blob/master/compose_configs/worker_compose.yml
 
 mkdir /home/recast/workdirsdata
 cat << STARTNEWOUT > /home/recast/startcompose.sh

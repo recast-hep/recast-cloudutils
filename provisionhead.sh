@@ -28,6 +28,9 @@ curl -L https://github.com/docker/compose/releases/download/1.6.2/docker-compose
 chmod +x /usr/local/bin/docker-compose
 echo $worker_pubkey >> ~/.ssh/authorized_keys 
 
+curl -L -o docker-compose.yml https://raw.githubusercontent.com/recast-hep/recast-cloudutils/master/compose_configs/head_compose.yml
+docker-compose up -d
+
 echo "\$(date) ::::RECAST:::: done setting up headnode"
 
 EOFOUT
