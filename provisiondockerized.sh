@@ -11,6 +11,7 @@ image=$1
 flavor=$2
 hostname=$3
 queue=$4
+headnode='lheinric-newcc'
 
 tmpfile=$(mktemp)
 cat << EOFOUT > $tmpfile
@@ -133,6 +134,11 @@ ssh-keyscan -t rsa recast-demo >> ~/.ssh/known_hosts
 ssh-keyscan -t rsa svn.cern.ch >> ~/.ssh/known_hosts
 
 echo "\$(date) ::::RECAST:::: done with setting up auth"
+
+
+curl https://raw.githubusercontent.com/recast-hep/recast-cloudutils/master/config_files/diamond.conf > /etc/diamond/diamond.conf
+sed -i 's|__RECAST_MONITOR_HOST__|$headnode|' /etc/diamond/diamond.conf
+service diamond restart
 
 echo "\$(date) ::::RECAST:::: pulling plugin"
 
