@@ -18,7 +18,7 @@ services:
     volumes:
        - /recastresults:/recastresults
   monitor:
-    image: kamon/grafana_graphite`
+    image: kamon/grafana_graphite
     ports:
       - "8080:80"
       - "8081:81"
