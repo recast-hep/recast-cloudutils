@@ -3,7 +3,7 @@ set -e
 #set -x
 
 if [[ -z "$1" ]];then
-  echo "usage: provisionmachine.sh <image> <flavor> <hostname> <queue>"
+  echo "usage: provisionmachine.sh <image> <flavor> <hostname> <queue> <headnode>"
   exit 0
 fi
 
@@ -11,7 +11,7 @@ image=$1
 flavor=$2
 hostname=$3
 queue=$4
-headnode='lheinric-newcc'
+headnode=$5
 
 tmpfile=$(mktemp)
 cat << EOFOUT > $tmpfile
