@@ -14,7 +14,9 @@ services:
       - RECAST_SHIP_PORT=22
       - RECAST_IN_DOCKER_WORKDIRS_VOL=$RECAST_IN_DOCKER_WORKDIRS_VOL
       - PACKTIVITY_WITHIN_DOCKER=true
+      - RECAST_QUARANTINE_DIR=/quarantinedata
     volumes:
-       - /var/run/docker.sock:/var/run/docker.sock
-       - $HOME/.ssh:/root/.ssh
-       - $RECAST_IN_DOCKER_WORKDIRS_VOL:/workdirsdata
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.ssh:/root/.ssh
+      - $RECAST_IN_DOCKER_WORKDIRS_VOL:/workdirsdata
+      - $RECAST_IN_DOCKER_QUARANTINE_VOL:/quarantinedata

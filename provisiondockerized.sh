@@ -151,6 +151,7 @@ mkdir /home/recast/workdirsdata
 cat << STARTNEWOUT > /home/recast/startcompose.sh
 #!/bin/sh
 cd /home/recast
+export RECAST_IN_DOCKER_QUARANTINE_VOL=/home/recast/quarantinedata
 export RECAST_IN_DOCKER_WORKDIRS_VOL=/home/recast/workdirsdata
 export RECAST_QUEUE=$queue
 docker-compose -f compose.yml up 
