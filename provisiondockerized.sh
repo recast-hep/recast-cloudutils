@@ -148,6 +148,7 @@ echo "\$(date) ::::RECAST:::: pulling compose manifest"
 curl -o /home/recast/compose.yml https://raw.githubusercontent.com/recast-hep/recast-cloudutils/master/compose_configs/worker_compose.yml
 
 mkdir /home/recast/workdirsdata
+mkdir /home/recast/quarantinedata
 cat << STARTNEWOUT > /home/recast/startcompose.sh
 #!/bin/sh
 cd /home/recast
