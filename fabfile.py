@@ -20,5 +20,13 @@ def resetup_head_ssh(headhost):
     run('ssh-keygen -R {0}'.format(headhost))
     run('ssh-keyscan -t rsa {0} > ~/.ssh/known_hosts'.format(headhost))
 
+def check_auth():
+    run('ls /home/recast/recast_auth')
+
+def manual_auth():
+    run('cern-get-certificate --autoenroll --grid')
+    run('cp /etc/pki/tls/certs/lheinric-*.cern.ch.grid.pem /home/recast/recast_auth/host.cert')
+    run('cp /etc/pki/tls/private/lheinric-*.cern.ch.grid.key /home/recast/recast_auth/privkey.pem')
+
 def check_ssh(headhost):
     run('ssh root@{0} "echo ssh ok."'.format(headhost))
