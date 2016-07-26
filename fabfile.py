@@ -32,4 +32,5 @@ def check_ssh(headhost):
     run('ssh root@{0} "echo ssh ok."'.format(headhost))
 
 def recompose():
-    run('echo')
+    run('curl -O /home/recast/compose.yml https://raw.githubusercontent.com/recast-hep/recast-cloudutils/master/compose_configs/worker_compose.yml')
+    run('supervisorctl restart recast_worker')
