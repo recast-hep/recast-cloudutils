@@ -1,6 +1,6 @@
 #!/bin/bash
-pvcreate /dev/vdb
-vgcreate vg-docker /dev/vdb
+pvcreate /dev/vdc
+vgcreate vg-docker /dev/vdc
 lvcreate -L 90G -n data vg-docker
 lvcreate -L 4G -n metadata vg-docker
 #service docker stop
