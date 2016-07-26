@@ -2,7 +2,7 @@ from fabric.api import *
 
 env.key_filename = '/afs/cern.ch/user/l/lheinric/openstack/openstack.pem'
 env.user = 'root'
-env.hosts = ['lheinric-recast-dockernode-00{0}'.format(x) for x in [0,1,2,3,4]]
+env.hosts = ['lheinric-recast-dockernode-00{0}'.format(x) for x in [0,1,2,3,5,6]]
 
 def uname():
     run('uname -a')
@@ -30,3 +30,6 @@ def manual_auth():
 
 def check_ssh(headhost):
     run('ssh root@{0} "echo ssh ok."'.format(headhost))
+
+def recompose():
+    run('echo')
