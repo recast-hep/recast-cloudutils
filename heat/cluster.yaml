@@ -1,0 +1,30 @@
+heat_template_version: 2013-05-23
+
+parameters:
+  number_of_nodes:
+    type: number
+    description: how many node servers
+    default: 1
+
+  node_prefix:
+    type: string
+    description: server hostname prefix for nodes
+    default: lheinric-heat-dockernode
+
+resources:
+  swarm_nodes:
+    type: "OS::Heat::ResourceGroup"
+    properties:
+      count: {get_param: number_of_nodes}
+      resource_def:
+        type: simple_with_vol.yaml
+        properties:
+          servername:
+            str_replace:
+              template: $prefix-%index%
+              params:
+                $prefix: {get_param: node_prefix}                
+          headnode: lheinric-newcc
+          queue: recast_cap_queue
+          volume_size: 100
+          node_flavor: m1.large

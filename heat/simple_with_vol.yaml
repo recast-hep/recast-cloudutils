@@ -1,0 +1,97 @@
+heat_template_version: 2013-05-23
+
+parameters:
+  servername:
+    type: string
+    description: servername
+  headnode:
+    type: string
+    description: headnode
+  queue:
+    type: string
+    description: celery queue
+  volume_size:
+    type: number
+    description: docker (meta-)data volume
+    default: 20
+  node_flavor:
+    type: string
+    description: server flavor
+    default: m1.small
+
+resources:
+  write_heat_params:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config:
+        str_replace:
+          template: {get_file: fragments/write-heat-params-master.yaml}
+          params:
+            "$SERVERNAME": {get_param: servername}
+            "$HEADNODE": {get_param: headnode}
+            "$QUEUE": {get_param: queue}
+            "$VOLSIZE": {get_param: volume_size}
+
+  misc:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: fragments/misc.sh}
+
+  docker_blockdevice_setup:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: fragments/docker_blockdevice_setup.sh}
+
+  auth_setup:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: fragments/auth_setup.sh}
+
+  plugin_setup:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: fragments/plugin_setup.sh}
+
+  grid_setup:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: fragments/grid_setup.sh}
+
+  server_init:
+    type: "OS::Heat::MultipartMime"
+    properties:
+      parts:
+        - config: {get_resource: write_heat_params}
+        - config: {get_resource: misc}
+        - config: {get_resource: docker_blockdevice_setup}
+        - config: {get_resource: plugin_setup}
+        - config: {get_resource: auth_setup}
+        - config: {get_resource: grid_setup}
+
+  new_volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: {get_param: volume_size}
+
+  new_instance:
+    type: OS::Nova::Server
+    properties:
+      name: {get_param: servername}
+      flavor: {get_param: node_flavor}
+      image: lheinric-dockerizedplugin-2016-07-26-01-dectx	
+      key_name: openstack
+      user_data_format: RAW
+      user_data: {get_resource: server_init}
+
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: new_volume }
+      instance_uuid: { get_resource: new_instance }
+      mountpoint: /dev/vdb

@@ -1,0 +1,10 @@
+#cloud-config
+write_files:
+  - path: /etc/sysconfig/heat-params
+    owner: "root:root"
+    permissions: "0644"
+    content: |
+      SERVERNAME="$SERVERNAME"
+      HEADNODE="$HEADNODE"
+      QUEUE="$QUEUE"
+      VOLSIZE="$VOLSIZE"
