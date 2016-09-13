@@ -11,20 +11,25 @@ parameters:
     description: server hostname prefix for nodes
     default: lheinric-heat-dockernode
 
+  head_node:
+    type: string
+    description: head node hostname
+    default: lheinric-newcc
+
 resources:
   swarm_nodes:
     type: "OS::Heat::ResourceGroup"
     properties:
       count: {get_param: number_of_nodes}
       resource_def:
-        type: simple_with_vol.yaml
+        type: worker_with_vol.yaml
         properties:
           servername:
             str_replace:
               template: $prefix-%index%
               params:
                 $prefix: {get_param: node_prefix}                
-          headnode: lheinric-newcc
+          headnode: {get_param: head_node}
           queue: recast_cap_queue
           volume_size: 100
           node_flavor: m1.large
