@@ -8,3 +8,4 @@ write_files:
       HEADNODE="$HEADNODE"
       QUEUE="$QUEUE"
       VOLSIZE="$VOLSIZE"
+      RECAST_PROV_PWD="$RECAST_PROV_PWD"

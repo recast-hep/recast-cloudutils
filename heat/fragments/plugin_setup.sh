@@ -5,7 +5,15 @@ echo "$(date) ::::RECAST:::: start plugin_setup.sh"
 docker pull lukasheinrich/recast-cap-demo
 
 echo "$(date) ::::RECAST:::: pulling compose manifest"
-curl -o /home/recast/compose.yml https://raw.githubusercontent.com/recast-hep/recast-cloudutils/master/compose_configs/worker_compose.yml
+
+
+
+HEADNODE="$HEADNODE" envsubst $HEADNODE < /etc/recast_provisioning_resources/getmyproxy_template.sh/worker_compose_template.yml > /home/recast/compose.yml
+
+
+echo "$(date) ::::RECAST:::: compose template is"
+cat /home/recast/compose.yml"
+
 
 cd /home/recast
 mkdir -p /home/recast/workdirsdata

@@ -16,6 +16,10 @@ parameters:
     description: head node hostname
     default: lheinric-newcc
 
+  prov_pwd:
+    type: string
+    description: provisioning pw
+
 resources:
   swarm_nodes:
     type: "OS::Heat::ResourceGroup"
@@ -33,3 +37,4 @@ resources:
           queue: recast_cap_queue
           volume_size: 100
           node_flavor: m1.large
+          prov_pwd: {get_param: prov_pwd}

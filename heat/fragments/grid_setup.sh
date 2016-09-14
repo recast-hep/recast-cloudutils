@@ -44,29 +44,10 @@ cp "/etc/pki/tls/private/$SERVERNAME.cern.ch.grid.key" /home/recast/recast_auth/
 chmod 400  /home/recast/recast_auth/privkey.pem
 
 
-cat << 'EOF_GMP' > /home/recast/recast_auth/getmyproxy.sh
-#!/bin/sh
-scriptdir=$(dirname $0)
-
-export X509_USER_CERT=$scriptdir/host.cert
-export X509_USER_KEY=$scriptdir/privkey.pem
-
-if [ ! $(stat --format=%a "$X509_USER_KEY") -eq 400 ];then
-  echo "warning: permissions on private key: $X509_USER_KEY are not correct. should be 400";
-  exit 1
-fi
-
-source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-if ! type "voms-proxy-init" > /dev/null;then
-localSetupEmi
-fi
-  
-thehostname="$SERVERNAME"
-myproxy-logon -l lheinric -k "new_recast_$thehostname" -n --voms atlas
-voms-proxy-info --all
-EOF_GMP
-
+SERVERNAME="$SERVERNAME" envsubst < /etc/recast_provisioning_resources/getmyproxy_template.sh > /home/recast/recast_auth/getmyproxy.sh
+KRB_PRINCIPAL=lheinric   envsubst < /etc/recast_provisioning_resources/getkrb_template.sh     > /home/recast/recast_auth/getkrb.sh
+cat /etc/recast_provisioning_resources/encrypted_secrets/kerberos.keytab.enc | /etc/recast_provisioning_resources/decrypt.sh $RECAST_PROV_PWD > /home/recast/recast_auth/kerberos.keytab
+chmod +x /home/recast/recast_auth/getkrb.sh
 chmod +x /home/recast/recast_auth/getmyproxy.sh
-sed -i 's|$SERVERNAME|'"$SERVERNAME"'|' /home/recast/recast_auth/getmyproxy.sh
 
 echo "$(date) ::::RECAST:::: end grid_setup.sh rc: $?"
