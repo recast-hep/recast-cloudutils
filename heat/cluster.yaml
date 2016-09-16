@@ -36,5 +36,5 @@ resources:
           headnode: {get_param: head_node}
           queue: recast_cap_queue
           volume_size: 100
-          node_flavor: m1.large
+          node_flavor: m2.large
           prov_pwd: {get_param: prov_pwd}

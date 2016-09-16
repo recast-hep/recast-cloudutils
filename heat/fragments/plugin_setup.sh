@@ -8,11 +8,13 @@ echo "$(date) ::::RECAST:::: pulling compose manifest"
 
 
 
-HEADNODE="$HEADNODE" envsubst $HEADNODE < /etc/recast_provisioning_resources/getmyproxy_template.sh/worker_compose_template.yml > /home/recast/compose.yml
+HEADNODE="$HEADNODE" SERVERNAME="$SERVERNAME" \
+envsubst '$HEADNODE','$SERVERNAME' \
+< /etc/recast_provisioning_resources/worker_compose_template.yml >  /home/recast/compose.yml
 
 
 echo "$(date) ::::RECAST:::: compose template is"
-cat /home/recast/compose.yml"
+cat /home/recast/compose.yml
 
 
 cd /home/recast

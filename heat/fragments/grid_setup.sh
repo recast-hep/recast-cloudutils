@@ -44,8 +44,8 @@ cp "/etc/pki/tls/private/$SERVERNAME.cern.ch.grid.key" /home/recast/recast_auth/
 chmod 400  /home/recast/recast_auth/privkey.pem
 
 
-SERVERNAME="$SERVERNAME" envsubst < /etc/recast_provisioning_resources/getmyproxy_template.sh > /home/recast/recast_auth/getmyproxy.sh
-KRB_PRINCIPAL=lheinric   envsubst < /etc/recast_provisioning_resources/getkrb_template.sh     > /home/recast/recast_auth/getkrb.sh
+SERVERNAME="$SERVERNAME" envsubst '$SERVERNAME' < /etc/recast_provisioning_resources/getmyproxy_template.sh > /home/recast/recast_auth/getmyproxy.sh
+KRB_PRINCIPAL=lheinric   envsubst '$KRB_PRINCIPAL' < /etc/recast_provisioning_resources/getkrb_template.sh     > /home/recast/recast_auth/getkrb.sh
 cat /etc/recast_provisioning_resources/encrypted_secrets/kerberos.keytab.enc | /etc/recast_provisioning_resources/decrypt.sh $RECAST_PROV_PWD > /home/recast/recast_auth/kerberos.keytab
 chmod +x /home/recast/recast_auth/getkrb.sh
 chmod +x /home/recast/recast_auth/getmyproxy.sh
