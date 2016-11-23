@@ -18,8 +18,8 @@ services:
       - RECAST_CELERY_REDIS_DB=0
       - RECAST_RESULT_BASE=$PWD/recaststorage
       - RECAST_STORAGEPATH=$PWD/recaststorage
-      - RECAST_ORCID=0000-0002-4048-7584
-      - RECAST_APITOKEN=3141-5926-5358-979323
+      - RECAST_ORCID=
+      - RECAST_APITOKEN=
       - RECAST_SSL_CERTFILE=/ssl_files/server.crt
       - RECAST_SSL_KEYFILE=/ssl_files/server.key
       - RECAST_OAUTH_SECRET=mzBIqlnaAfZzUj23oFFMvg1lT1Mlj1EOMGpUds45D8o1
