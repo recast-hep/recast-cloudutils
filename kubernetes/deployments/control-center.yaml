@@ -1,0 +1,90 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: control-center
+spec:
+  replicas: 8
+  template:
+    metadata:
+      labels:
+        app: control-center
+    spec:
+      containers:
+      - name: control-center
+        image: recast/control-center
+        imagePullPolicy: Always
+        command: ['recast-control-center','server','--config','/secrets/config/config.yaml']
+        ports:
+          - containerPort: 8000
+            name: "http"
+            hostPort: 443
+        volumeMounts:
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
+          - name: config
+            mountPath: /secrets/config
+            readOnly: true
+          - name: resultstorage
+            mountPath: /recastresults
+            readOnly: true
+        env:
+          - name: RECAST_SSL_CERTFILE
+            value: /secrets/ssl/server.crt
+          - name: RECAST_SSL_KEYFILE
+            value: /secrets/ssl/server.key
+          - name: RECAST_APIURL
+            value: https://frontend.default.svc.cluster.local:81/
+          - name: RECAST_CELERY_REDIS_HOST
+            value: localhost
+          - name: RECAST_CELERY_REDIS_PORT
+            value: '6379'
+          - name: RECAST_CELERY_REDIS_DB
+            value: '0'
+          - name: RECAST_SSL_VERIFY
+            value: 'false'
+          - name: RECAST_BASEURL
+            value: https://recast-control.cern.ch/
+          - name: RECAST_OAUTH_DUMMYLOGIN
+            value: 'true'
+          - name: RECAST_RESULT_BASE
+            value: /recastresults
+      - name: shiptarget
+        image: quay.io/macropin/sshd
+        command: ['/entry.sh','bash','-c','cat /secrets/ssh/rsa.pub > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config']
+        volumeMounts:
+          - name: ssh
+            mountPath: /secrets/ssh
+            readOnly: true
+          - name: resultstorage
+            mountPath: /recastresults
+        ports:
+          - containerPort: 22
+            name: ssh
+      - name: redis
+        image: redis
+        command: ['docker-entrypoint.sh','redis-server','--appendonly','yes']
+        volumeMounts:
+          - name: redisstorage
+            mountPath: /data
+        ports:
+          - containerPort: 6379
+            name: redis
+      volumes:
+      - name: ssl
+        secret:
+          secretName: control-center-ssl-official
+      - name: ssh
+        secret:
+          secretName: control-center-ssh
+      - name: config
+        secret:
+          secretName: control-center-config
+      - name: redisstorage
+        hostPath:
+          path: /srv/ccdata/redisdata/ 
+      - name: resultstorage
+        hostPath:
+          path: /srv/ccdata/resultdata/
+      nodeSelector:
+        ccdata: 'true'

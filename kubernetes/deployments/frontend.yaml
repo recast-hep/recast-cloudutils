@@ -1,0 +1,77 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: lukasheinrich/recast-frontend
+        imagePullPolicy: Always
+        command: ['recast-frontend','server','--config','/secrets/config/config.yaml']
+        ports:
+          - containerPort: 5001
+            name: http
+            hostPort: 443
+        volumeMounts:
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
+          - name: config
+            mountPath: /secrets/config
+            readOnly: true
+        env:
+          - name: RECAST_SSL_CERT
+            value: /secrets/ssl/server.crt
+          - name: RECAST_SSL_KEY
+            value: /secrets/ssl/server.key
+          - name: RECAST_ORCID_REDIRECT_URI
+            value: https://recast-frontend-beta.cern.ch/login
+      - name: postgres
+        image: postgres:latest
+        volumeMounts:
+          - name: dbstorage
+            mountPath: /pgdata
+        env:
+          - name: PGDATA
+            value: /pgdata
+        ports:
+          - containerPort: 5432
+            name: postgres
+      - name: api
+        image: lukasheinrich/recast-rest-server
+        imagePullPolicy: Always
+        command: ['bash','-c','sleep 10 && recast-api server --config /secrets/config/config.yaml']
+        env:
+          - name: RECAST_SSL_CERT
+            value: /secrets/ssl/server.crt
+          - name: RECAST_SSL_KEY
+            value: /secrets/ssl/server.key
+        volumeMounts:
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
+          - name: config
+            mountPath: /secrets/config
+            readOnly: true
+        ports:
+          - containerPort: 5000
+            name: rest
+            hostPort: 8443
+      volumes:
+      - name: ssl
+        secret:
+          secretName: frontend-ssl-official
+      - name: config
+        secret:
+          secretName: frontend-config
+      - name: dbstorage
+        hostPath:
+          path: /srv/frontendpgdata/ 
+      nodeSelector:
+        frontenddata: 'true'
