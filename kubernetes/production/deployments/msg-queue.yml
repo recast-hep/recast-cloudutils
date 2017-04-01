@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: msg-queue
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: msg-queue
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        command: ['docker-entrypoint.sh','redis-server','--appendonly','yes']
+        volumeMounts:
+          - name: cephfs
+            mountPath: /data
+            subPath: redisdata
+            readOnly: false
+        ports:
+          - containerPort: 6379
+            name: redis
+        resources:
+          requests:
+            memory: "12Gi"
+      volumes:
+      - name: cephfs
+        cephfs:
+          monitors:
+          - 128.142.36.227:6790
+          - 128.142.39.77:6790
+          - 128.142.39.144:6790
+          path: /volumes/_nogroup/b9949045-1e0c-43d2-841a-481714a11243
+          user: recast-ceph-auth
+          secretRef:
+            name: ceph-secret-recastauth
+          readOnly: false

@@ -1,0 +1,107 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: recast/yadage-worker:prod-hotfix
+        imagePullPolicy: Always
+        command:
+        - sh
+        - '-c'
+        - >-
+          mkdir -p ~/.ssh &&
+          cp ~/ssh_data/rsa.key ~/.ssh/id_rsa &&
+          chmod 0400 ~/.ssh/id_rsa &&
+          ssh-keyscan -p 2022 -t rsa ${RECAST_SHIP_HOST} |sed "s|\(^.*.cluster.local\)|[\1]:2022|" > ~/.ssh/known_hosts &&
+
+          export WORKERPOD_UID=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
+          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" 
+          https://kubernetes/api/v1/namespaces/default/pods/"$(hostname)"|jq .metadata.uid -r) &&
+
+          export RECAST_IN_DOCKER_WORKDIRS_VOL="/var/lib/kubelet/pods/${WORKERPOD_UID}/volumes/kubernetes.io~cephfs/cephfs/workerdata" &&
+          celery worker -A recastcelery.fromenvapp:app -l debug -Q ${RECAST_QUEUE} --concurrency 1 
+
+        workingDir: /srv/workerdata
+        volumeMounts:
+          - name: dockersocket
+            mountPath: /var/run/docker.sock
+          - name: ssh
+            mountPath: /root/ssh_data
+          - name: auth
+            mountPath: /secrets/auth
+          - name: sistersauth
+            mountPath: /sister_secrets
+          - name: cephfs
+            mountPath: /srv/workerdata
+            subPath: workerdata
+
+        resources:
+          requests:
+            cpu: "7"  #will only fit one per 8VCPU node, but don't want to completely stuff it
+            memory: "14Gi" #2GB memory per core
+
+        env:
+          - name: RECAST_CELERY_REDIS_HOST
+            value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: RECAST_CELERY_REDIS_PORT
+            value: '6379'
+          - name: RECAST_CELERY_REDIS_DB
+            value: '0'
+          - name: RECAST_QUEUE
+            value: 'recast_yadage_queue'
+          - name: RECAST_SHIP_USER
+            value: root
+          - name: RECAST_SHIP_HOST
+            value: recast-backend-shiptarget.default.svc.cluster.local
+          - name: RECAST_SHIP_PORT
+            value: '2022'
+          - name: RECAST_DOCKERHOST
+            value: hello
+          - name: RECAST_YADAGEBACKEND
+            value: multiproc:8
+          - name: C_FORCE_ROOT
+            value: 'true'
+          - name: RECAST_QUARANTINE_DIR
+            value: /srv/workerdata/quarantine
+          - name: PACKTIVITY_AUTH_LOCATION
+            value: /srv/recast_auth
+          - name: PACKTIVITY_CVMFS_SOURCE
+            value: voldriver
+          - name: PACKTIVITY_WITHIN_DOCKER
+            value: 'true'
+          - name: PACKTIVITY_CVMFS_REPOS
+            value: '[atlas.cern.ch, atlas-condb.cern.ch,sft.cern.ch]'
+
+      volumes:
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+      - name: sistersauth
+        hostPath:
+          path: /srv/recast_auth
+      - name: ssh
+        secret:
+          secretName: control-center-ssh
+      - name: auth
+        secret:
+          secretName: atlas-auth
+
+      - name: cephfs
+        cephfs:
+          monitors:
+          - 128.142.36.227:6790
+          - 128.142.39.77:6790
+          - 128.142.39.144:6790
+          path: /volumes/_nogroup/b9949045-1e0c-43d2-841a-481714a11243
+          user: recast-ceph-auth
+          secretRef:
+            name: ceph-secret-recastauth
+          readOnly: false
