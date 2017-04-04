@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: recast/yadage-worker:prod-hotfix
+        image: recast/yadage-worker:prod
         imagePullPolicy: Always
         command:
         - sh

@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: control-center
-        image: recast/control-center:localbuild
+        image: recast/control-center:prod
         imagePullPolicy: Always
         command: ['recast-control-center','server','--config','/secrets/config/config.yaml']
 
