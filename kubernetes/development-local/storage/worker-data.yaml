@@ -8,7 +8,7 @@ spec:
   accessModes:
   - "ReadWriteMany"
   hostPath:
-    path: /Users/lukas/Code/recastdev/data/pv0003/
+    path: /data/pv0003/
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1

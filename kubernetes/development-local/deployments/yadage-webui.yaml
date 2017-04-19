@@ -12,7 +12,7 @@ spec:
       containers:
       - name: yadage-service-webui
         image: yadage/yadage-service:alpha
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             cpu: "0.5"

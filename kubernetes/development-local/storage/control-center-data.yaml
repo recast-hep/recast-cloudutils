@@ -8,7 +8,7 @@ spec:
   capacity:
     storage: 0.1Gi
   hostPath:
-    path: /Users/lukas/Code/recastdev/data/pv0001/
+    path: /data/pv0001/
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1

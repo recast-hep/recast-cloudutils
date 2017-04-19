@@ -12,7 +12,7 @@ spec:
       containers:
       - name: frontend
         image: lukasheinrich/recast-frontend
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['recast-frontend','server','--config','/secrets/config/config.yaml']
         ports:
           - containerPort: 5001
@@ -46,7 +46,7 @@ spec:
             name: postgres
       - name: api
         image: lukasheinrich/recast-rest-server
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['bash','-c','sleep 10 && recast-api server --config /secrets/config/config.yaml']
         env:
           - name: RECAST_SSL_CERT

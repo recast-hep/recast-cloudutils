@@ -12,7 +12,7 @@ spec:
       containers:
       - name: control-center
         image: recast/control-center:git-master
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['recast-control-center','server','--config','/secrets/config/config.yaml']
         resources:
           requests:

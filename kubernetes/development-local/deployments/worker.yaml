@@ -12,7 +12,7 @@ spec:
       containers:
       - name: worker
         image: recast/yadage-worker:localbuild-dev
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command:
         - sh
         - '-c'

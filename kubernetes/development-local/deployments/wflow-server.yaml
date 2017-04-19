@@ -12,7 +12,7 @@ spec:
       containers:
       - name: wflow-server
         image: recast/wflowserver:alpha
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         command: ['python','wflowserver/server.py']
         ports:
           - containerPort: 5000
