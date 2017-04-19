@@ -31,7 +31,9 @@ spec:
           - name: RECAST_SSL_KEY
             value: /secrets/ssl/server.key
           - name: RECAST_ORCID_REDIRECT_URI
-            value: https://recast-frontend-beta.cern.ch/login
+            value: https://recast-frontend-local.cern.ch:30443/login
+          - name: RECAST_ORCID_TOKEN_REDIRECT_URI
+            value: https://recast-frontend-local.cern.ch:30443/token
       - name: postgres
         image: postgres:latest
         volumeMounts:
