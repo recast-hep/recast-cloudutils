@@ -46,8 +46,6 @@ spec:
             value: https://frontend.default.svc.cluster.local:81/
           - name: RECAST_SSL_VERIFY
             value: 'false'
-          - name: RECAST_BASEURL
-            value: https://recast-control.cern.ch
           - name: RECAST_RESULT_BASE
             value: /recastresults
           - name: RECAST_BACKENDCONFIGURL
