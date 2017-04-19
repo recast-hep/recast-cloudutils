@@ -23,16 +23,21 @@ spec:
             name: redis
         resources:
           requests:
-            memory: "12Gi"
+            memory: "3Gi"
       volumes:
       - name: cephfs
-        cephfs:
-          monitors:
-          - 128.142.36.227:6790
-          - 128.142.39.77:6790
-          - 128.142.39.144:6790
-          path: /volumes/_nogroup/b9949045-1e0c-43d2-841a-481714a11243
-          user: recast-ceph-auth
-          secretRef:
-            name: ceph-secret-recastauth
-          readOnly: false
+        persistentVolumeClaim:
+          claimName: control-center-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recast-backend-msg-queue
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  selector:
+    app: msg-queue

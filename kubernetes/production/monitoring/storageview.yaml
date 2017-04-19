@@ -19,21 +19,25 @@ spec:
           - containerPort: 8000
             name: "http"
         volumeMounts:
-          - name: cephfs
-            mountPath: /data
+          - name: worker
+            mountPath: /data/worker
+            readOnly: true
+          - name: frontend
+            mountPath: /data/frontend
+            readOnly: true
+          - name: control-center
+            mountPath: /data/controlcenter
             readOnly: true
       volumes:
-      - name: cephfs
-        cephfs:
-          monitors:
-          - 128.142.36.227:6790
-          - 128.142.39.77:6790
-          - 128.142.39.144:6790
-          path: /volumes/_nogroup/b9949045-1e0c-43d2-841a-481714a11243
-          user: recast-ceph-auth
-          secretRef:
-            name: ceph-secret-recastauth
-          readOnly: true
+      - name: worker
+        persistentVolumeClaim:
+          claimName: worker-data
+      - name: frontend
+        persistentVolumeClaim:
+          claimName: frontend-data
+      - name: control-center
+        persistentVolumeClaim:
+          claimName: control-center-data
 ---
 kind: Service
 apiVersion: v1

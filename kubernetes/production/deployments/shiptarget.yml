@@ -31,13 +31,18 @@ spec:
         hostPath:
           path: /srv/ccdata/redisdata/ 
       - name: cephfs
-        cephfs:
-          monitors:
-          - 128.142.36.227:6790
-          - 128.142.39.77:6790
-          - 128.142.39.144:6790
-          path: /volumes/_nogroup/b9949045-1e0c-43d2-841a-481714a11243
-          user: recast-ceph-auth
-          secretRef:
-            name: ceph-secret-recastauth
-          readOnly: false
+        persistentVolumeClaim:
+          claimName: control-center-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recast-backend-shiptarget
+spec:
+  type: ClusterIP
+  ports:
+  - port: 2022
+    targetPort: 22
+    name: ssh
+  selector:
+    app: shiptarget

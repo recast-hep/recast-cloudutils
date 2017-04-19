@@ -1,0 +1,92 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: packtivity-worker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: packtivity-worker
+    spec:
+      containers:
+      - name: packtivity-worker
+        image: recast/yadage-worker:localbuild-dev
+        imagePullPolicy: Always
+        command:
+        - sh
+        - '-c'
+        - >-
+          sleep 60 &&
+          echo "hello $(hostname)" &&
+          export WORKERPOD_UID=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
+          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" 
+          https://kubernetes/api/v1/namespaces/default/pods/"$(hostname)"|jq .metadata.uid -r) &&
+          export RECAST_IN_DOCKER_WORKDIRS_VOL="/var/lib/kubelet/pods/${WORKERPOD_UID}/volumes/kubernetes.io~cephfs/recast-cluster-pv-03/workerdata" &&
+          if [[ "$WORKERPOD_UID" -eq "null" ]];then echo "UID null"; exit 1;fi &&
+          if [[ "$WORKERPOD_UID" -eq "" ]];then echo "UID empty";exit 1;fi &&
+          echo $WORKERPOD_UID > "$(hostname)"-workerpod.id &&
+          echo $RECAST_IN_DOCKER_WORKDIRS_VOL > "$(hostname)"-volmap.data &&
+          export PACKTIVITY_WORKDIR_LOCATION="$PWD:$RECAST_IN_DOCKER_WORKDIRS_VOL" &&
+          cp --remove-destination -L -r /secrets/auth/* /sister_secrets &&
+          chmod 400 /sister_secrets/privkey.pem &&
+          chmod +x /sister_secrets/getmyproxy.sh &&
+          chmod +x /sister_secrets/getkrb.sh &&
+          docker volume create -d cvmfs --name=atlas-condb.cern.ch &&
+          docker volume create -d cvmfs --name=atlas.cern.ch &&
+          docker volume create -d cvmfs --name=sft.cern.ch &&
+          celery worker -A packtivity.asyncbackends:default_celeryapp -I packtivity.asyncbackends -l debug --concurrency 2
+        workingDir: /srv/workerdata
+        volumeMounts:
+          - name: dockersocket
+            mountPath: /var/run/docker.sock
+          - name: ssh
+            mountPath: /root/ssh_data
+          - name: auth
+            mountPath: /secrets/auth
+          - name: sistersauth
+            mountPath: /sister_secrets
+          - name: cephfs
+            mountPath: /srv/workerdata
+            subPath: workerdata
+        resources:
+          requests:
+            cpu: "2"  #will only fit one per 8VCPU node, but don't want to completely stuff it
+            memory: "3.5Gi" #2GB memory per core
+        env:
+          - name: C_FORCE_ROOT
+            value: 'true'
+          - name: PACKTIVITY_CELERY_REDIS_BROKER
+            value: 'redis://recast-backend-msg-queue.default.svc.cluster.local:6379/1'
+          - name: PACKTIVITY_AUTH_LOCATION
+            value: /srv/recast_auth
+          - name: PACKTIVITY_CVMFS_SOURCE
+            value: voldriver
+          - name: PACKTIVITY_WITHIN_DOCKER
+            value: 'true'
+          - name: PACKTIVITY_CVMFS_REPOS
+            value: '[atlas.cern.ch, atlas-condb.cern.ch,sft.cern.ch]'
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: role
+                operator: NotIn
+                values: [yadagesvc,frontendnode,ccnode,noworker]
+      volumes:
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+      - name: sistersauth
+        hostPath:
+          path: /srv/recast_auth
+      - name: ssh
+        secret:
+          secretName: control-center-ssh
+      - name: auth
+        secret:
+          secretName: atlas-auth
+      - name: cephfs
+        persistentVolumeClaim:
+          claimName: worker-data

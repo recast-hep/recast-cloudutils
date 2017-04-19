@@ -11,14 +11,12 @@ spec:
     spec:
       containers:
       - name: control-center
-        image: recast/control-center:prod
+        image: recast/control-center:git-master
         imagePullPolicy: Always
         command: ['recast-control-center','server','--config','/secrets/config/config.yaml']
-
         resources:
           requests:
-            cpu: "1"
-
+            cpu: "0.5"
         ports:
           - containerPort: 8000
             name: "http"
@@ -46,22 +44,22 @@ spec:
             value: /secrets/ssl/server.key
           - name: RECAST_APIURL
             value: https://frontend.default.svc.cluster.local:81/
-          - name: RECAST_CELERY_REDIS_HOST
-            value: recast-backend-msg-queue.default.svc.cluster.local
-          - name: RECAST_CELERY_REDIS_PORT
-            value: '6379'
-          - name: RECAST_CELERY_REDIS_DB
-            value: '0'
           - name: RECAST_SSL_VERIFY
             value: 'false'
           - name: RECAST_BASEURL
-            value: https://recast-control.cern.ch/
-          - name: RECAST_OAUTH_DUMMYLOGIN
-            value: 'true'
+            value: https://recast-control.cern.ch
           - name: RECAST_RESULT_BASE
             value: /recastresults
           - name: RECAST_BACKENDCONFIGURL
             value: https://raw.githubusercontent.com/recast-hep/recast-backend/master/recastbackend/resources/backendconfig.yml
+          - name: RECAST_WORKFLOW_SERVER
+            value: http://wflow-server.default.svc.cluster.local
+          - name: RECAST_PROCDB_REDIS_HOST
+            value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: RECAST_PROCDB_REDIS_PORT
+            value: '6379'
+          - name: RECAST_PROCDB_REDIS_DB
+            value: '0'
       volumes:
       - name: ssl
         secret:
@@ -73,15 +71,30 @@ spec:
         secret:
           secretName: control-center-backendconfig
       - name: cephfs
-        cephfs:
-          monitors:
-          - 128.142.36.227:6790
-          - 128.142.39.77:6790
-          - 128.142.39.144:6790
-          path: /volumes/_nogroup/b9949045-1e0c-43d2-841a-481714a11243
-          user: recast-ceph-auth
-          secretRef:
-            name: ceph-secret-recastauth
-          readOnly: true
+        persistentVolumeClaim:
+          claimName: control-center-data
       nodeSelector:
-        ccnode: 'true'
+        role: ccnode
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#            - matchExpressions:
+#              - key: role
+#                operator: In
+#                values: [ccnode]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-center
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8000
+    nodePort: 32443
+    name: http
+    protocol: TCP
+  selector:
+    app: control-center
