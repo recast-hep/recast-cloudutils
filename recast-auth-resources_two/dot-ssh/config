@@ -1,8 +1,0 @@
-Host svn.cern.ch
-  User lheinric
-  GSSAPIAuthentication yes
-  GSSAPIDelegateCredentials yes
-
-Host localhost
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null

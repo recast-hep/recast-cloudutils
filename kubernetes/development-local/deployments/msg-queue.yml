@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: msg-queue
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: msg-queue
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        command: ['docker-entrypoint.sh','redis-server','--appendonly','yes']
+        volumeMounts:
+          - name: cephfs
+            mountPath: /data
+            subPath: redisdata
+            readOnly: false
+        ports:
+          - containerPort: 6379
+            name: redis
+      volumes:
+      - name: cephfs
+        persistentVolumeClaim:
+          claimName: control-center-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recast-backend-msg-queue
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  selector:
+    app: msg-queue
