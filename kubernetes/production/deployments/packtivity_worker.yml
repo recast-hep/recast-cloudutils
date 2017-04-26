@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: packtivity-worker
-        image: recast/yadage-worker:localbuild-dev
+        image: recast/yadage-worker:git-master
         imagePullPolicy: Always
         command:
         - sh
