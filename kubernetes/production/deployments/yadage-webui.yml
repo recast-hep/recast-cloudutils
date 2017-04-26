@@ -1,0 +1,75 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: yadage-service-webui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: yadage-service-webui
+    spec:
+      containers:
+      - name: yadage-service-webui
+        image: yadage/yadage-service:git-master
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "0.5"
+        ports:
+          - containerPort: 5000
+            name: "http"
+            hostPort: 80
+        volumeMounts:
+          - name: cephfs
+            mountPath: /recastresults
+            subPath: recastresults
+            readOnly: true
+        env:
+          - name: YADAGE_WORKFLOW_SERVER
+            value: http://wflow-server.default.svc.cluster.local
+          - name: YADAGE_SHIPTARGET_USER
+            value: root
+          - name: YADAGE_SHIPTARGET_HOST
+            value: recast-backend-shiptarget.default.svc.cluster.local
+          - name: YADAGE_SHIPTARGET_PORT
+            value: '2022'
+          - name: YADAGE_RESULTBASE
+            value: /recastresults/yadagesvc
+          - name: YADAGE_WORKFLOW_QUEUE
+            value: recast_yadage_queue
+          - name: YADAGE_JOBDB_REDIS_HOST
+            value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: YADAGE_JOBDB_REDIS_PORT
+            value: '6379'
+          - name: YADAGE_JOBDB_REDIS_DB
+            value: '3'
+      volumes:
+      - name: cephfs
+        persistentVolumeClaim:
+          claimName: control-center-data
+      nodeSelector:
+        role: yadagesvcnode
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#            - matchExpressions:
+#              - key: role
+#                operator: In
+#                values: [yadagesvc]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yadage-service-webui
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 32453
+    targetPort: 5000
+    name: http
+    protocol: TCP
+  selector:
+    app: yadage-service-webui
