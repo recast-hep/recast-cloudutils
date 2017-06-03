@@ -23,6 +23,19 @@ spec:
             value: '6379'
           - name: RECAST_CELERY_REDIS_DB
             value: '0'
+          - name: WFLOW_SUBJOB_BASE
+            value: '/subjoblogs'
+          - name: WFLOW_SUBJOB_TEMPLATE
+            value: '{}.{}.log'
+        volumeMounts:
+          - name: cephfs
+            mountPath: /subjoblogs
+            subPath: joblogs
+            readOnly: true
+      volumes:
+      - name: cephfs
+        persistentVolumeClaim:
+          claimName: control-center-data
 ---
 apiVersion: v1
 kind: Service

@@ -60,6 +60,12 @@ spec:
             value: '6379'
           - name: RECAST_PROCDB_REDIS_DB
             value: '0'
+          - name: RECAST_SHIP_USER
+            value: root
+          - name: RECAST_SHIP_HOST
+            value: recast-backend-shiptarget.default.svc.cluster.local
+          - name: RECAST_SHIP_PORT
+            value: '2022'
       volumes:
       - name: ssl
         secret:

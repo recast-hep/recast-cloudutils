@@ -32,6 +32,7 @@ spec:
           chmod 400 /sister_secrets/privkey.pem &&
           chmod +x /sister_secrets/getmyproxy.sh &&
           chmod +x /sister_secrets/getkrb.sh &&
+          docker login -u `cat /secrets/dockerreg/username` -p `cat /secrets/dockerreg/password` -e xxx gitlab-registry.cern.ch &&
           docker volume create -d cvmfs --name=atlas-condb.cern.ch &&
           docker volume create -d cvmfs --name=atlas.cern.ch &&
           docker volume create -d cvmfs --name=sft.cern.ch &&
@@ -49,6 +50,8 @@ spec:
           - name: cephfs
             mountPath: /srv/workerdata
             subPath: workerdata
+          - name: dockerreg
+            mountPath: /secrets/dockerreg
         resources:
           requests:
             cpu: "2"  #will only fit one per 8VCPU node, but don't want to completely stuff it
@@ -66,6 +69,12 @@ spec:
             value: 'true'
           - name: PACKTIVITY_CVMFS_REPOS
             value: '[atlas.cern.ch, atlas-condb.cern.ch,sft.cern.ch]'
+          - name: PACKTIVITY_CELERY_GLOBAL_NAMETAG
+            value: 'true'
+          - name: PACKTIVITY_LOGGING_HANDLER
+            value: 'yadageworker.packredislogger:add_handlers'
+          - name: PACKTIVITY_LOGGER_HOST
+            value: recast-backend-msg-queue.default.svc.cluster.local
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -87,6 +96,9 @@ spec:
       - name: auth
         secret:
           secretName: atlas-auth
+      - name: dockerreg
+        secret:
+          secretName: docker-reg-cern
       - name: cephfs
         persistentVolumeClaim:
           claimName: worker-data
