@@ -19,8 +19,11 @@ spec:
         ports:
           - containerPort: 5000
             name: "http"
-            hostPort: 80
+            hostPort: 443
         volumeMounts:
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
           - name: cephfs
             mountPath: /recastresults
             subPath: recastresults
@@ -44,20 +47,39 @@ spec:
             value: '6379'
           - name: YADAGE_JOBDB_REDIS_DB
             value: '3'
+          - name: YADAGE_SSL_KEY
+            value: '/secrets/ssl/server.key'
+          - name: YADAGE_SSL_CERT
+            value: '/secrets/ssl/server.crt'
+          - name: CERN_OAUTH_TOKENURL
+            value: 'https://oauth.web.cern.ch/OAuth/Token'
+          - name: CERN_OAUTH_AUTHORIZEURL
+            value: 'https://oauth.web.cern.ch/OAuth/Authorize'
+          - name: CERN_OAUTH_APPID
+            value: yadage
+          - name: CERN_OAUTH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: yadagewebuiauth
+                key: oauth_secret
+          - name: CERN_OAUTH_REDIRECT_ROUTE
+            value: '/oauth'
+          - name: CERN_OAUTH_BASEURL
+            value: 'https://yadage.cern.ch'
+          - name: CERN_ATLAS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: yadagewebuiauth
+                key: bearer_token
       volumes:
       - name: cephfs
         persistentVolumeClaim:
           claimName: control-center-data
+      - name: ssl
+        secret:
+          secretName: yadage-ssl
       nodeSelector:
         role: yadagesvcnode
-#      affinity:
-#        nodeAffinity:
-#          requiredDuringSchedulingIgnoredDuringExecution:
-#            nodeSelectorTerms:
-#            - matchExpressions:
-#              - key: role
-#                operator: In
-#                values: [yadagesvc]
 ---
 apiVersion: v1
 kind: Service
@@ -66,7 +88,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 80
+  - port: 443
     nodePort: 32453
     targetPort: 5000
     name: http
