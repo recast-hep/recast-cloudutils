@@ -104,3 +104,24 @@ RECAST Frontend
   - server.crt
   - server.key
 ```
+
+Label the edge server nodes
+
+```bash
+kubectl label node <a node> role=yadagesvcnode
+kubectl label node <a node> role=ccnode
+kubectl label node <a node> role=frontendnode
+```
+
+Create the deployments
+
+```bash
+kubectl create -f deployments/
+```
+
+Route CERN DNS to edge nodes
+
+```bash
+openstack server set --property landb-alias=yadage <serverid>
+```
+
