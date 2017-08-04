@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test
+  annotations:
+    ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  tls:
+  - hosts:
+    - recast-frontend-beta.cern.ch
+    - recast-control.cern.ch
+    - yadage.cern.ch
+  rules:
+  - host: recast-frontend-beta.cern.ch
+    http:
+      paths:
+      - backend:
+          serviceName: frontend
+          servicePort: 80
+  - host: recast-control.cern.ch
+    http:
+      paths:
+      - backend:
+          serviceName: control-center
+          servicePort: 80
+  - host: yadage.cern.ch
+    http:
+      paths:
+      - backend:
+          serviceName: yadage-service-webui
+          servicePort: 443
+
