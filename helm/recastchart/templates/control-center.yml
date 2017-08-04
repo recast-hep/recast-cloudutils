@@ -1,0 +1,115 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: control-center
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: control-center
+    spec:
+      containers:
+      - name: control-center
+        image: recast/control-center:{{.Values.ImageTags.control_center}}
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
+        command: ['recast-control-center','server','--config','/secrets/config/config.yaml']
+        {{ if eq .Values.ResourceRequirements true}}
+        resources:
+          requests:
+            cpu: "0.5"
+        {{ end }}
+        ports:
+        {{ if eq .Values.HostPorts true}}
+          - containerPort: 8000
+            name: "http"
+            hostPort: 443
+        {{ end }}
+        volumeMounts:
+          {{ if ne .Values.localsource.control_center "none" }}
+          - name: localoverlay
+            mountPath: /localsource
+          {{ end }}
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
+          - name: config
+            mountPath: /secrets/config
+            readOnly: true
+          - name: backendconfig
+            mountPath: /secrets/backend
+            readOnly: true
+          - name: data
+            mountPath: /recastresults
+            subPath: recastresults
+            readOnly: true
+        env:
+          - name: RECAST_BACKENDCONFIGFILE
+            value: /secrets/backend/backendconfig.yml
+          - name: RECAST_SSL_CERTFILE
+            value: /secrets/ssl/server.crt
+          - name: RECAST_SSL_KEYFILE
+            value: /secrets/ssl/server.key
+          - name: RECAST_APIURL
+            value: https://frontend.default.svc.cluster.local:81/
+          - name: RECAST_SSL_VERIFY
+            value: 'false'
+          - name: RECAST_BASEURL
+            value: https://recast-control.cern.ch
+          - name: RECAST_RESULT_BASE
+            value: /recastresults
+          - name: RECAST_BACKENDCONFIGURL
+            value: https://raw.githubusercontent.com/recast-hep/recast-backend/master/recastbackend/resources/backendconfig.yml
+          - name: RECAST_WORKFLOW_SERVER
+            value: http://wflow-server.default.svc.cluster.local
+          - name: RECAST_PROCDB_REDIS_HOST
+            value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: RECAST_PROCDB_REDIS_PORT
+            value: '6379'
+          - name: RECAST_SSL_ENABLE
+            value: {{ .Values.EnableServiceSSL }}
+          - name: RECAST_PROCDB_REDIS_DB
+            value: '0'
+          - name: RECAST_SHIP_USER
+            value: root
+          - name: RECAST_SHIP_HOST
+            value: recast-backend-shiptarget.default.svc.cluster.local
+          - name: RECAST_SHIP_PORT
+            value: '2022'
+      volumes:
+      {{ if ne .Values.localsource.control_center "none" }}
+      - name: localoverlay
+        hostPath:
+          path: {{ .Values.localsource.control_center }}
+      {{ end }}
+      - name: ssl
+        secret:
+          secretName: control-center-ssl
+      - name: config
+        secret:
+          secretName: control-center-config
+      - name: backendconfig
+        secret:
+          secretName: control-center-backendconfig
+      - name: data
+        persistentVolumeClaim:
+          claimName: control-center-data
+      {{ if eq .Values.NodeAffinity true}}
+      nodeSelector:
+        role: ccnode
+      {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-center
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8000
+    nodePort: 32443
+    name: http
+    protocol: TCP
+  selector:
+    app: control-center

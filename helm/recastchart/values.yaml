@@ -1,0 +1,36 @@
+ResourceRequirements: true
+NodeAffinity: true
+HostPorts: true
+ImagePullPolicy: Always
+SimplifiedWorker: false
+ImageTags:
+  control_center: git-master
+  wflow_server: git-master
+  wflow_logging: git-master
+  frontend_server: git-master
+  frontend_rest_server: git-master
+  worker: git-master
+  yadage_web: git-master
+Storage:
+  Type: "cephfs"
+  CCSize: 0.1Gi
+  WorkerSize: 0.1Gi
+  FrontendSize: 0.1Gi
+  CephFS:
+    Monitors: []
+    Path: '/a/path/to/cephfs/volume'
+  HostFS:
+    CCPath: /data/pv0001/
+    FrontendPath: /data/pv0002/
+    WorkerPath: /data/pv0003/
+CERNGitLab:
+  User: mycernuser
+  Password: mycernpassword
+yadage:
+  oauth_secret: mysecret
+  bearer_token: mybearer
+localsource:
+  control_center: 'none'
+  frontend_server: 'none'
+  rest_server: 'none'
+EnableServiceSSL: 'hello'

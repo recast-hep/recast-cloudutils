@@ -1,0 +1,79 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: recast/yadage-worker:{{.Values.ImageTags.worker}}
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
+        command:
+        - sh
+        - '-c'
+        - >-
+          mkdir -p ~/.ssh &&
+          cp ~/ssh_data/id_rsa ~/.ssh/id_rsa &&
+          chmod 0400 ~/.ssh/id_rsa &&
+          celery worker -A recastcelery.fromenvapp:app -l debug -Q ${RECAST_QUEUE} --concurrency 4
+        workingDir: /srv/workerdata
+        volumeMounts:
+          - name: ssh
+            mountPath: /root/ssh_data
+          - name: data
+            mountPath: /srv/workerdata
+            subPath: workerdata
+        {{ if eq .Values.ResourceRequirements true}}
+        resources:
+          requests:
+            cpu: "0.5"  #will only fit one per 8VCPU node, but don't want to completely stuff it
+            memory: "0.2Gi" #2GB memory per core
+        {{ end }}
+        env:
+          - name: RECAST_UPLOAD_DISABLE_KNOWN_HOST
+            value: ok
+          - name: RECAST_CELERY_REDIS_HOST
+            value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: RECAST_CELERY_REDIS_PORT
+            value: '6379'
+          - name: RECAST_CELERY_REDIS_DB
+            value: '0'
+          - name: RECAST_QUEUE
+            value: 'recast_yadage_queue'
+          - name: RECAST_DOCKERHOST
+            value: hello
+          - name: RECAST_YADAGEBACKEND
+            value: celery
+          - name: C_FORCE_ROOT
+            value: 'true'
+          - name: RECAST_QUARANTINE_DIR
+            value: /srv/workerdata/quarantine
+          - name: PACKTIVITY_CELERY_REDIS_BROKER
+            value: 'redis://recast-backend-msg-queue.default.svc.cluster.local:6379/1'
+          - name: YADAGE_SCHEMA_LOAD_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: yadageloadtoken
+                key: token
+      {{ if eq .Values.NodeAffinity true}}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: role
+                operator: NotIn
+                values: [yadagesvc,frontendnode,ccnode]
+      {{ end }}
+      volumes:
+      - name: ssh
+        secret:
+          secretName: control-center-ssh
+      - name: data
+        persistentVolumeClaim:
+          claimName: worker-data

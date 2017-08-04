@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: shiptarget
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: shiptarget
+    spec:
+      containers:
+      - name: shiptarget
+        image: recast/sshd
+        command: ['/entry.sh','bash','-c','cat /secrets/ssh/id_rsa.pub > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config']
+        volumeMounts:
+          - name: ssh
+            mountPath: /secrets/ssh
+            readOnly: true
+          - name: data
+            mountPath: /recastresults
+            subPath: recastresults
+        ports:
+          - containerPort: 22
+            name: ssh
+      volumes:
+      - name: ssh
+        secret:
+          secretName: control-center-ssh
+      - name: data
+        persistentVolumeClaim:
+          claimName: control-center-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recast-backend-shiptarget
+spec:
+  type: ClusterIP
+  ports:
+  - port: 2022
+    targetPort: 22
+    name: ssh
+  selector:
+    app: shiptarget

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: yadageloadtoken
+type: Opaque
+data:
+  token: {{ .Values.yadage_load_token | b64enc }}

@@ -1,0 +1,121 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: recast/frontend:{{.Values.ImageTags.frontend_server}}
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
+        command: ['recast-frontend','server','--config','/secrets/config/config.yaml']
+        {{ if eq .Values.ResourceRequirements true}}
+        resources:
+          requests:
+            cpu: "0.5" 
+        {{ end }}
+        {{ if eq .Values.HostPorts true}}
+        ports:
+          - containerPort: 5001
+            name: http
+            hostPort: 443
+        {{ end }}
+        volumeMounts:
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
+          - name: config
+            mountPath: /secrets/config
+            readOnly: true
+        env:
+          - name: RECAST_SSL_CERT
+            value: /secrets/ssl/server.crt
+          - name: RECAST_SSL_KEY
+            value: /secrets/ssl/server.key
+          - name: RECAST_ORCID_REDIRECT_URI
+            value: https://recast-frontend-beta.cern.ch/login
+          - name: RECAST_SSL_ENABLE
+            value: {{ .Values.EnableServiceSSL }}
+      - name: postgres
+        {{ if eq .Values.ResourceRequirements true}}
+        resources:
+          requests:
+            cpu: "0.5"
+        {{ end }}
+        image: postgres:latest
+        volumeMounts:
+          - name: data
+            mountPath: /pgdata
+            subPath: frontenddbdata
+        env:
+          - name: PGDATA
+            value: /pgdata
+        ports:
+          - containerPort: 5432
+            name: postgres
+      - name: api
+        image: recast/frontend-rest-server:{{.Values.ImageTags.frontend_rest_server}}
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
+        command: ['bash','-c','sleep 10 && recast-api server --config /secrets/config/config.yaml']
+        {{ if eq .Values.ResourceRequirements true}}
+        resources:
+          requests:
+            cpu: "0.5"
+        {{ end }}
+        env:
+          - name: RECAST_SSL_CERT
+            value: /secrets/ssl/server.crt
+          - name: RECAST_SSL_KEY
+            value: /secrets/ssl/server.key
+        volumeMounts:
+          - name: ssl
+            mountPath: /secrets/ssl
+            readOnly: true
+          - name: config
+            mountPath: /secrets/config
+            readOnly: true
+        ports:
+        {{ if eq .Values.HostPorts true}}
+          - containerPort: 5000
+            name: rest
+            hostPort: 8443
+        {{ end }}
+      volumes:
+      - name: ssl
+        secret:
+          secretName: frontend-ssl
+      - name: config
+        secret:
+          secretName: frontend-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: frontend-data
+      {{ if eq .Values.NodeAffinity true}}
+      nodeSelector:
+        role: frontendnode
+      {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 5001
+    nodePort: 30443
+    name: webserver
+    protocol: TCP
+  - port: 81
+    targetPort: 5000
+    nodePort: 30444
+    name: restapi
+    protocol: TCP
+  selector:
+    app: frontend

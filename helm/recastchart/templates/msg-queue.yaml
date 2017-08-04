@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: msg-queue
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: msg-queue
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        command: ['docker-entrypoint.sh','redis-server','--appendonly','yes']
+        volumeMounts:
+          - name: data
+            mountPath: /data
+            subPath: redisdata
+            readOnly: false
+        ports:
+          - containerPort: 6379
+            name: redis
+        {{ if eq .Values.ResourceRequirements true}}
+        resources:
+          requests:
+            memory: "3Gi"
+        {{ end }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: control-center-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recast-backend-msg-queue
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  selector:
+    app: msg-queue

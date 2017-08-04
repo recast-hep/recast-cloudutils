@@ -1,0 +1,4 @@
+apiVersion: v1
+description: A Helm chart for deploying the RECAST framework
+name: recast
+version: 0.1.0
