@@ -1,5 +1,12 @@
 {{ if eq .Values.Storage.Type "cephfs"}}
-
+apiVersion: v1
+data:
+  key: {{ .Values.Storage.CephFS.AuthKey | b64enc}}
+kind: Secret
+metadata:
+  name: ceph-secret
+type: Opaque
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -8,16 +15,16 @@ spec:
   capacity:
     storage: {{ .Values.Storage.CCSize }}
   accessModes:
-    - ReadWriteMany
+  - "ReadWriteMany"
   cephfs:
     monitors:
-      {{- range .Values.Storage.CephFS.Monitors }}
-      - {{ . | quote }}
-      {{- end }}
-    path: {{ .Values.Storage.CephFS.Path }}
-    user: recast-cephfs-user
+    {{- range .Values.Storage.CephFS.Monitors }}
+    - {{ . | quote }}
+    {{- end }}
+    user: {{ .Values.Storage.CephFS.User }}
     secretRef:
-      name: ceph-secret-recastauth
+      name: ceph-secret
+    path: {{ .Values.Storage.CephFS.Path }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -25,18 +32,18 @@ metadata:
   name: recast-cluster-pv-02
 spec:
   capacity:
-    storage: {{ .Values.Storage.FrontendSize }}
+    storage: {{ .Values.Storage.WorkerSize }}
   accessModes:
-    - ReadWriteMany
+  - "ReadWriteMany"
   cephfs:
     monitors:
-      {{- range .Values.Storage.CephFS.Monitors }}
-      - {{ . | quote }}
-      {{- end }}
-    path: {{ .Values.Storage.CephFS.Path }}
-    user: recast-cephfs-user
+    {{- range .Values.Storage.CephFS.Monitors }}
+    - {{ . | quote }}
+    {{- end }}
+    user: {{ .Values.Storage.CephFS.User }}
     secretRef:
-      name: ceph-secret-recastauth
+      name: ceph-secret
+    path: {{ .Values.Storage.CephFS.Path }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -44,16 +51,16 @@ metadata:
   name: recast-cluster-pv-03
 spec:
   capacity:
-    storage: {{ .Values.Storage.WorkerSize }}
+    storage: {{ .Values.Storage.FrontendSize }}
   accessModes:
-    - ReadWriteMany
+  - "ReadWriteMany"
   cephfs:
     monitors:
-      {{- range .Values.Storage.CephFS.Monitors }}
-      - {{ . | quote }}
-      {{- end }}
-    path: {{ .Values.Storage.CephFS.Path }}
-    user: recast-cephfs-user
+    {{- range .Values.Storage.CephFS.Monitors }}
+    - {{ . | quote }}
+    {{- end }}
+    user: {{ .Values.Storage.CephFS.User }}
     secretRef:
-      name: ceph-secret-recastauth
-{{end}}
+      name: ceph-secret
+    path: {{ .Values.Storage.CephFS.Path }}
+{{ end }}

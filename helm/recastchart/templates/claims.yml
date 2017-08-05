@@ -1,0 +1,32 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: worker-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.Storage.WorkerSize }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: frontend-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.Storage.FrontendSize }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: control-center-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.Storage.CCSize }}
