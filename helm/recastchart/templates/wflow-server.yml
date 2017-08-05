@@ -42,7 +42,7 @@ kind: Service
 metadata:
   name: wflow-server
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 5000
