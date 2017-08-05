@@ -3,6 +3,20 @@ NodeAffinity: true
 HostPorts: true
 ImagePullPolicy: Always
 SimplifiedWorker: false
+DNS:
+  control_center: recast-control.cern.ch
+  frontend_server: recast-frontend-beta.cern.ch
+  yadage_service: yadage.cern.ch
+OAuth:
+  control_center:
+    app_id: 'anappid'
+    secret: 'asecret'
+  frontend:
+    app_id: 'anappid'
+    secret: 'asecret'
+  yadage_service:
+    app_id: 'anappid'
+    secret: 'asecret'
 ImageTags:
   control_center: git-master
   wflow_server: git-master

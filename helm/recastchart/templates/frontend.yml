@@ -33,14 +33,26 @@ spec:
             mountPath: /secrets/config
             readOnly: true
         env:
+          - name: RECAST_ORCID_REDIRECT_URI
+            value: 'https://{{ .Values.DNS.frontend_server }}/login'
+          - name: RECAST_ORCID_TOKEN_REDIRECT_URI
+            value: https://{{ .Values.DNS.frontend_server }}/token'
           - name: RECAST_SSL_CERT
             value: /secrets/ssl/server.crt
           - name: RECAST_SSL_KEY
             value: /secrets/ssl/server.key
-          - name: RECAST_ORCID_REDIRECT_URI
-            value: https://recast-frontend-beta.cern.ch/login
           - name: RECAST_SSL_ENABLE
             value: {{ .Values.EnableServiceSSL }}
+          - name: RECAST_ORCID_APPID
+            valueFrom:
+              secretKeyRef:
+                name: frontend-oauth
+                key: app_id
+          - name: RECAST_ORCID_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: frontend-oauth
+                key: secret
       - name: postgres
         {{ if eq .Values.ResourceRequirements true}}
         resources:
@@ -72,6 +84,16 @@ spec:
             value: /secrets/ssl/server.crt
           - name: RECAST_SSL_KEY
             value: /secrets/ssl/server.key
+          - name: RECAST_ORCID_APPID
+            valueFrom:
+              secretKeyRef:
+                name: frontend-oauth
+                key: app_id
+          - name: RECAST_ORCID_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: frontend-oauth
+                key: secret
         volumeMounts:
           - name: ssl
             mountPath: /secrets/ssl

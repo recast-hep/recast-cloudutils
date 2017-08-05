@@ -44,6 +44,23 @@ spec:
             subPath: recastresults
             readOnly: true
         env:
+          - name: RECAST_BASEURL
+            value: https://{{ .Values.DNS.control_center }}
+          - name: RECAST_OAUTH_APPID
+            valueFrom:
+              secretKeyRef:
+                name: control-center-oauth
+                key: app_id
+          - name: RECAST_OAUTH_APPID
+            valueFrom:
+              secretKeyRef:
+                name: control-center-oauth
+                key: app_id
+          - name: RECAST_OAUTH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: control-center-oauth
+                key: secret         
           - name: RECAST_BACKENDCONFIGFILE
             value: /secrets/backend/backendconfig.yml
           - name: RECAST_SSL_CERTFILE
@@ -54,8 +71,6 @@ spec:
             value: https://frontend.default.svc.cluster.local:81/
           - name: RECAST_SSL_VERIFY
             value: 'false'
-          - name: RECAST_BASEURL
-            value: https://recast-control.cern.ch
           - name: RECAST_RESULT_BASE
             value: /recastresults
           - name: RECAST_BACKENDCONFIGURL

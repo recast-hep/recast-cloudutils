@@ -60,16 +60,19 @@ spec:
           - name: CERN_OAUTH_AUTHORIZEURL
             value: 'https://oauth.web.cern.ch/OAuth/Authorize'
           - name: CERN_OAUTH_APPID
-            value: yadage
+            valueFrom:
+              secretKeyRef:
+                name: yadagewebui-oauth
+                key: app_id
           - name: CERN_OAUTH_SECRET
             valueFrom:
               secretKeyRef:
-                name: yadagewebuiauth
-                key: oauth_secret
+                name: yadagewebui-oauth
+                key: secret
           - name: CERN_OAUTH_REDIRECT_ROUTE
             value: '/oauth'
           - name: CERN_OAUTH_BASEURL
-            value: 'https://yadage.cern.ch'
+            value: 'https://{{ .Values.DNS.yadage_service }}'
           - name: CERN_ATLAS_TOKEN
             valueFrom:
               secretKeyRef:
