@@ -3,6 +3,7 @@ NodeAffinity: true
 HostPorts: true
 ImagePullPolicy: Always
 SimplifiedWorker: false
+InternalServiceType: ClusterIP
 DNS:
   control_center: recast-control.cern.ch
   frontend_server: recast-frontend-beta.cern.ch

@@ -36,7 +36,7 @@ kind: Service
 metadata:
   name: recast-backend-shiptarget
 spec:
-  type: ClusterIP
+  type: {{ .Values.InternalServiceType }}
   ports:
   - port: 2022
     targetPort: 22

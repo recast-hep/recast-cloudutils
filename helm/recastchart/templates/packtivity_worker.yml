@@ -24,18 +24,18 @@ spec:
           https://kubernetes/api/v1/namespaces/default/pods/"$(hostname)"|jq .metadata.uid -r) &&
 
           {{ if eq .Values.Storage.Type "cephfs"}}
-          export RECAST_IN_DOCKER_WORKDIRS_VOL="/var/lib/kubelet/pods/${WORKERPOD_UID}/volumes/kubernetes.io~cephfs/recast-cluster-pv-03/workerdata" &&
+          export WFLOW_IN_DOCKER_WORKDIRS_VOL="/var/lib/kubelet/pods/${WORKERPOD_UID}/volumes/kubernetes.io~cephfs/recast-cluster-pv-03/workerdata" &&
           {{ end }}
 
           {{ if eq .Values.Storage.Type "localfs"}}
-          export RECAST_IN_DOCKER_WORKDIRS_VOL="{{.Values.Storage.HostFS.WorkerPath}}workerdata" &&
+          export WFLOW_IN_DOCKER_WORKDIRS_VOL="{{.Values.Storage.HostFS.WorkerPath}}workerdata" &&
           {{ end }}
 
           if [[ "$WORKERPOD_UID" -eq "null" ]];then echo "UID null"; exit 1;fi &&
           if [[ "$WORKERPOD_UID" -eq "" ]];then echo "UID empty";exit 1;fi &&
           echo $WORKERPOD_UID > "$(hostname)"-workerpod.id &&
-          echo $RECAST_IN_DOCKER_WORKDIRS_VOL > "$(hostname)"-volmap.data &&
-          export PACKTIVITY_WORKDIR_LOCATION="$PWD:$RECAST_IN_DOCKER_WORKDIRS_VOL" &&
+          echo $WFLOW_IN_DOCKER_WORKDIRS_VOL > "$(hostname)"-volmap.data &&
+          export PACKTIVITY_WORKDIR_LOCATION="$PWD:$WFLOW_IN_DOCKER_WORKDIRS_VOL" &&
           cp --remove-destination -L -r /secrets/auth/* /sister_secrets &&
           chmod 400 /sister_secrets/privkey.pem &&
           chmod +x /sister_secrets/getmyproxy.sh &&
@@ -74,7 +74,7 @@ spec:
           - name: PACKTIVITY_CELERY_REDIS_BROKER
             value: 'redis://recast-backend-msg-queue.default.svc.cluster.local:6379/1'
           - name: PACKTIVITY_AUTH_LOCATION
-            value: /srv/recast_auth
+            value: /srv/wflow_auth
           - name: PACKTIVITY_CVMFS_SOURCE
             value: voldriver
           - name: PACKTIVITY_WITHIN_DOCKER
@@ -103,7 +103,7 @@ spec:
           path: /var/run/docker.sock
       - name: sistersauth
         hostPath:
-          path: /srv/recast_auth
+          path: /srv/wflow_auth
       - name: ssh
         secret:
           secretName: control-center-ssh

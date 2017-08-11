@@ -44,7 +44,7 @@ spec:
           - name: YADAGE_RESULTBASE
             value: /recastresults/yadagesvc
           - name: YADAGE_WORKFLOW_QUEUE
-            value: recast_yadage_queue
+            value: yadage_queue
           - name: YADAGE_JOBDB_REDIS_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
           - name: YADAGE_JOBDB_REDIS_PORT

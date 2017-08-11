@@ -23,7 +23,7 @@ spec:
         {{ end }}
         volumeMounts:
           - name: data
-            mountPath: /joblogs
+            mountPath: /subjoblogs
             subPath: joblogs
           - name: data
             mountPath: /wflowlogs
@@ -31,6 +31,10 @@ spec:
         env:
           - name: LOGSTASH_REDIS_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: LOGSTASH_WFLOW_LOGBASE
+            value: /wflowlogs
+          - name: LOGSTASH_JOB_LOGBASE
+            value: /subjoblogs
       volumes:
       - name: data
         persistentVolumeClaim:

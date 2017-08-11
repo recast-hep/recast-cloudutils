@@ -7,23 +7,30 @@ metadata:
 spec:
   tls:
   - hosts:
-    - recast-frontend-beta.cern.ch
-    - recast-control.cern.ch
-    - yadage.cern.ch
+    - recast-control-local.cern.ch
+    - recast-frontend-local.cern.ch
+    - recast-frontend-local-api.cern.ch
+    - yadage-local.cern.ch
   rules:
-  - host: recast-frontend-beta.cern.ch
+  - host: recast-frontend-local.cern.ch
     http:
       paths:
       - backend:
           serviceName: frontend
           servicePort: 80
-  - host: recast-control.cern.ch
+  - host: recast-frontend-local-api.cern.ch
+    http:
+      paths:
+      - backend:
+          serviceName: frontend
+          servicePort: 81
+  - host: recast-control-local.cern.ch
     http:
       paths:
       - backend:
           serviceName: control-center
           servicePort: 80
-  - host: yadage.cern.ch
+  - host: yadage-local.cern.ch
     http:
       paths:
       - backend:

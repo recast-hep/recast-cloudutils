@@ -28,7 +28,7 @@ spec:
         volumeMounts:
           {{ if ne .Values.localsource.control_center "none" }}
           - name: localoverlay
-            mountPath: /localsource
+            mountPath: /code
           {{ end }}
           - name: ssl
             mountPath: /secrets/ssl

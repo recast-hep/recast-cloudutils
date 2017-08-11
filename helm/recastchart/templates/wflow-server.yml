@@ -17,21 +17,31 @@ spec:
         ports:
           - containerPort: 5000
         env:
-          - name: RECAST_CELERY_REDIS_HOST
+          - name: WFLOW_CELERY_REDIS_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
-          - name: RECAST_CELERY_REDIS_PORT
+          - name: WFLOW_CELERY_REDIS_PORT
             value: '6379'
-          - name: RECAST_CELERY_REDIS_DB
+          - name: WFLOW_CELERY_REDIS_DB
             value: '0'
           - name: WFLOW_SUBJOB_BASE
             value: '/subjoblogs'
           - name: WFLOW_SUBJOB_TEMPLATE
             value: '{}.{}.log'
+          - name: WFLOW_WFLOW_BASE
+            value: '/wflowlogs'
+          - name: WFLOW_WFLOW_TEMPLATE
+            value: '{}.{}.log'
+          - name: WFLOW_UPLOAD_IDENTITY_FILE
+            value: ''
+          - name: WFLOW_SERVER_PORT
+            value: '5000'
         volumeMounts:
           - name: data
             mountPath: /subjoblogs
-            subPath: joblogs
-            readOnly: true
+            subPath: subjoblogs
+          - name: data
+            mountPath: /wflowlogs
+            subPath: wflowlogs
       volumes:
       - name: data
         persistentVolumeClaim:
@@ -42,7 +52,7 @@ kind: Service
 metadata:
   name: wflow-server
 spec:
-  type: ClusterIP
+  type: {{ .Values.InternalServiceType }}
   ports:
   - port: 80
     targetPort: 5000
@@ -50,3 +60,5 @@ spec:
     protocol: TCP
   selector:
     app: wflow-server
+
+
