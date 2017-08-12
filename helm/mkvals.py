@@ -1,9 +1,19 @@
 import yaml
+import base64
+import sys
+import os
 
-data = yaml.load(open('./myvals.yml'))
+infile = sys.argv[1]
+filebase = sys.argv[2]
+outfile = sys.argv[3]
+
+print 'massaging {} {} {}'.format(infile,filebase,outfile)
+data = yaml.load(open(infile))
 
 for k,v in data['files'].items():
-	data['files'][k] = open(v).read()
+    filetoget = os.path.join(filebase,v)
+    print 'getting file {}'.format(filetoget)
+    data['files'][k] = base64.b64encode(open(filetoget).read())
 
 
-yaml.dump(data,open('myfiles_filled.yml','w'), default_flow_style = False)
+yaml.dump(data,open(outfile,'w'), default_flow_style = False)

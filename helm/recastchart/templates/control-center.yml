@@ -43,6 +43,9 @@ spec:
             mountPath: /recastresults
             subPath: recastresults
             readOnly: true
+          - name: data
+            mountPath: /recaststorage
+            subPath: recaststorage
         env:
           - name: RECAST_BASEURL
             value: https://{{ .Values.DNS.control_center }}
@@ -73,6 +76,10 @@ spec:
             value: 'false'
           - name: RECAST_RESULT_BASE
             value: /recastresults
+          - name: RECAST_STORAGEPATH
+            value: /recaststorage
+          - name: RECAST_CATALOGUE_FILE
+            value: /recaststorage/catalogue.json
           - name: RECAST_BACKENDCONFIGURL
             value: https://raw.githubusercontent.com/recast-hep/recast-backend/master/recastbackend/resources/backendconfig.yml
           - name: RECAST_WORKFLOW_SERVER

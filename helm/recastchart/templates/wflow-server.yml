@@ -38,7 +38,7 @@ spec:
         volumeMounts:
           - name: data
             mountPath: /subjoblogs
-            subPath: subjoblogs
+            subPath: joblogs
           - name: data
             mountPath: /wflowlogs
             subPath: wflowlogs

@@ -84,19 +84,9 @@ spec:
           - name: PACKTIVITY_CELERY_GLOBAL_NAMETAG
             value: 'true'
           - name: PACKTIVITY_LOGGING_HANDLER
-            value: 'yadageworker.packredislogger:add_handlers'
+            value:  'wflowyadageworker.packredislogger:add_handlers'
           - name: PACKTIVITY_LOGGER_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
-      {{ if eq .Values.NodeAffinity true}}
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: role
-                operator: NotIn
-                values: [yadagesvc,frontendnode,ccnode,noworker]
-      {{ end }}
       volumes:
       - name: dockersocket
         hostPath:

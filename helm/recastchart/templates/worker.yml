@@ -60,16 +60,6 @@ spec:
               secretKeyRef:
                 name: yadageloadtoken
                 key: token
-      {{ if eq .Values.NodeAffinity true}}
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: role
-                operator: NotIn
-                values: [yadagesvc,frontendnode,ccnode]
-      {{ end }}
       volumes:
       - name: ssh
         secret:
