@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: shiptarget
-        image: quay.io/macropin/sshd
+        image: recast/sshd
         command: ['/entry.sh','bash','-c','cat /secrets/ssh/rsa.pub > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config']
         volumeMounts:
           - name: ssh

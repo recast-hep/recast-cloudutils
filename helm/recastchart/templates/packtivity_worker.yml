@@ -23,8 +23,14 @@ spec:
           -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" 
           https://kubernetes/api/v1/namespaces/default/pods/"$(hostname)"|jq .metadata.uid -r) &&
 
+
+          export VOLNAME=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
+          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" 
+          https://kubernetes/api/v1/namespaces/default/persistentvolumeclaims|jq '.items[]|select(.metadata.name == "worker-data").spec.volumeName' -r) &&
+
+
           {{ if eq .Values.Storage.Type "cephfs"}}
-          export WFLOW_IN_DOCKER_WORKDIRS_VOL="/var/lib/kubelet/pods/${WORKERPOD_UID}/volumes/kubernetes.io~cephfs/recast-cluster-pv-03/workerdata" &&
+          export WFLOW_IN_DOCKER_WORKDIRS_VOL="/var/lib/kubelet/pods/${WORKERPOD_UID}/volumes/kubernetes.io~cephfs/${VOLNAME}/workerdata" &&
           {{ end }}
 
           {{ if eq .Values.Storage.Type "localfs"}}
@@ -34,6 +40,7 @@ spec:
           if [[ "$WORKERPOD_UID" -eq "null" ]];then echo "UID null"; exit 1;fi &&
           if [[ "$WORKERPOD_UID" -eq "" ]];then echo "UID empty";exit 1;fi &&
           echo $WORKERPOD_UID > "$(hostname)"-workerpod.id &&
+          echo $VOLNAME > "$(hostname)"-volume.name &&
           echo $WFLOW_IN_DOCKER_WORKDIRS_VOL > "$(hostname)"-volmap.data &&
           export PACKTIVITY_WORKDIR_LOCATION="$PWD:$WFLOW_IN_DOCKER_WORKDIRS_VOL" &&
           cp --remove-destination -L -r /secrets/auth/* /sister_secrets &&
