@@ -19,13 +19,12 @@ spec:
         - >-
           sleep 60 &&
           echo "hello $(hostname)" &&
-          export WORKERPOD_UID=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
-          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" 
+          export WORKERPOD_UID=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
           https://kubernetes/api/v1/namespaces/default/pods/"$(hostname)"|jq .metadata.uid -r) &&
 
-
-          export VOLNAME=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
-          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" 
+          export VOLNAME=$(curl -s -k --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
           https://kubernetes/api/v1/namespaces/default/persistentvolumeclaims|jq '.items[]|select(.metadata.name == "worker-data").spec.volumeName' -r) &&
 
 
@@ -91,7 +90,7 @@ spec:
           - name: PACKTIVITY_CELERY_GLOBAL_NAMETAG
             value: 'true'
           - name: PACKTIVITY_LOGGING_HANDLER
-            value:  'wflowyadageworker.packredislogger:add_handlers'
+            value: 'wflowyadageworker.packredislogger:add_handlers'
           - name: PACKTIVITY_LOGGER_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
       volumes:
