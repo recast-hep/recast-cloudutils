@@ -72,7 +72,7 @@ spec:
         {{ if eq .Values.ResourceRequirements true}}
           requests:
             cpu: "2"  #will only fit one per 8VCPU node, but don't want to completely stuff it
-            memory: "3.5Gi" #2GB memory per core
+            memory: "3.5G" #2GB memory per core
         {{ end }}
         env:
           - name: C_FORCE_ROOT

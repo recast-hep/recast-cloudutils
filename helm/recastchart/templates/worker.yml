@@ -53,6 +53,8 @@ spec:
             value: 'true'
           - name: WFLOW_QUARANTINE_DIR
             value: /srv/workerdata/quarantine
+          - name: PACKTIVITY_CELERY_DISABLE_SYNC
+            value: 'false'
           - name: PACKTIVITY_CELERY_REDIS_BROKER
             value: 'redis://recast-backend-msg-queue.default.svc.cluster.local:6379/1'
           - name: YADAGE_SCHEMA_LOAD_TOKEN
