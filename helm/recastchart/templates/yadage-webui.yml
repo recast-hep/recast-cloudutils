@@ -32,7 +32,13 @@ spec:
             mountPath: /recastresults
             subPath: recastresults
             readOnly: true
+          - name: data
+            mountPath: /workflow_inputs
+            subPath: workflow_inputs
+            readOnly: false
         env:
+          - name: YADAGE_UPLOADBASE
+            value: /workflow_inputs
           - name: YADAGE_WORKFLOW_SERVER
             value: http://wflow-server.default.svc.cluster.local
           - name: YADAGE_SHIPTARGET_USER

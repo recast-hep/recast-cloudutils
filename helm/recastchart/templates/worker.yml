@@ -37,6 +37,13 @@ spec:
         env:
           - name: WFLOW_UPLOAD_DISABLE_KNOWN_HOST
             value: ok
+          - name: WFLOW_DOWNLOAD_TOKEN
+            valueFrom:   
+              secretKeyRef:
+                name: yadagewebuiauth
+                key: bearer_token
+          - name: WFLOW_DOWNLOAD_VERIFY_SSL
+            value: 'false'
           - name: WFLOW_CELERY_REDIS_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
           - name: WFLOW_CELERY_REDIS_PORT
