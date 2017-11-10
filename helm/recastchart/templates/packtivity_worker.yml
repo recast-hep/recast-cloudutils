@@ -93,6 +93,8 @@ spec:
             value: 'wflowyadageworker.packredislogger:add_handlers'
           - name: PACKTIVITY_LOGGER_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
+          - name: PACKTIVITY_DOCKER_CMD_MOD
+            value: ' --user root'
       volumes:
       - name: dockersocket
         hostPath:
