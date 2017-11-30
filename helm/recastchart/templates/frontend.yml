@@ -17,7 +17,7 @@ spec:
         {{ if eq .Values.ResourceRequirements true}}
         resources:
           requests:
-            cpu: "0.5" 
+            cpu: "0.5"
         {{ end }}
         {{ if eq .Values.HostPorts true}}
         ports:
@@ -60,6 +60,10 @@ spec:
             cpu: "0.5"
         {{ end }}
         image: postgres:10
+        {{ if .Values.ContainerDetails.postgresRoot }}
+        securityContext:
+          runAsUser: 0
+        {{ end }}
         volumeMounts:
           - name: data
             mountPath: /pgdata

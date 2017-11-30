@@ -13,10 +13,12 @@ spec:
       - name: wflow-server
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
-        command: ['python','wflowserver/server.py']
+        command: ['python','wflowserver/server.py','run_server']
         ports:
           - containerPort: 5000
         env:
+          - name: WFLOW_DATABSE_URI
+            value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
           - name: WFLOW_CELERY_REDIS_HOST
             value: recast-backend-msg-queue.default.svc.cluster.local
           - name: WFLOW_CELERY_REDIS_PORT
@@ -60,5 +62,3 @@ spec:
     protocol: TCP
   selector:
     app: wflow-server
-
-

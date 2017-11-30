@@ -49,3 +49,6 @@ localsource:
   frontend_server: 'none'
   rest_server: 'none'
 EnableServiceSSL: 'hello'
+ContainerDetails:
+  redisRoot: false
+  postgresRoot: false

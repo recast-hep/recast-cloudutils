@@ -12,7 +12,13 @@ spec:
       containers:
       - name: redis
         image: redis:3
+        {{ if eq .Values.ContainerDetails.redisRoot true }}
+        securityContext:
+          runAsUser: 0
+        command: ['redis-server','--appendonly','yes']
+        {{ else }}
         command: ['docker-entrypoint.sh','redis-server','--appendonly','yes']
+        {{ end }}
         volumeMounts:
           - name: data
             mountPath: /data

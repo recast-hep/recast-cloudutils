@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: backend-db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: backend-db
+    spec:
+      containers:
+      - name: python
+        image: python
+        command: [tail,-f,/dev/null]
+      - name: postgres
+        image: postgres:10
+        {{ if .Values.ContainerDetails.postgresRoot }}
+        securityContext:
+          runAsUser: 0
+        {{ end }}
+        volumeMounts:
+          - name: data
+            mountPath: /pgdata
+            subPath: backenddbdata
+        env:
+          - name: PGDATA
+            value: /pgdata
+        ports:
+          - containerPort: 5432
+            name: postgres
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: control-center-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-db
+spec:
+  type: {{ .Values.InternalServiceType }}
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: backend-db
