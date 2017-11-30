@@ -11,6 +11,7 @@ spec:
     spec:
       containers:
       - name: yadage-service-webui
+        command: [python,yadageservice/app.py,run_server]
         image: yadage/yadage-service:{{.Values.ImageTags.yadage_web}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
         resources:
@@ -51,12 +52,8 @@ spec:
             value: /recastresults/yadagesvc
           - name: YADAGE_WORKFLOW_QUEUE
             value: yadage_queue
-          - name: YADAGE_JOBDB_REDIS_HOST
-            value: recast-backend-msg-queue.default.svc.cluster.local
-          - name: YADAGE_JOBDB_REDIS_PORT
-            value: '6379'
-          - name: YADAGE_JOBDB_REDIS_DB
-            value: '3'
+          - name: YADAGE_JOBDB_URI
+            value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
           - name: YADAGE_SSL_KEY
             value: '/secrets/ssl/server.key'
           - name: YADAGE_SSL_CERT
