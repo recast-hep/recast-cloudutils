@@ -10,40 +10,66 @@ spec:
         app: wflow-server
     spec:
       containers:
+      - name: wflow-beat
+        image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
+        command: ['sh','-c','cd wflowserver && celery beat -A celeryapp -s /beat/what.db']
+        volumeMounts:
+        - name: data
+          mountPath: /beat
+          subPath: beat
+        env:
+        - name: WFLOW_BEAT_BROKER
+          value: redis://recast-backend-msg-queue.default.svc.cluster.local:6379/2
+      - name: wflow-beat-worker
+        image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
+        command: ['sh','-c','cd wflowserver && celery worker -A celeryapp -l debug -Q private_queue --concurrency 1'] ### NOTE DEADLOCKING
+        env:
+        - name: WFLOW_BEAT_BROKER
+          value: redis://recast-backend-msg-queue.default.svc.cluster.local:6379/2
+        - name: WFLOW_DATABSE_URI
+          value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
+        - name: WFLOW_CELERY_REDIS_HOST
+          value: recast-backend-msg-queue.default.svc.cluster.local
+        - name: WFLOW_CELERY_REDIS_PORT
+          value: '6379'
+        - name: WFLOW_CELERY_REDIS_DB
+          value: '0'
       - name: wflow-server
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
         command: ['python','wflowserver/server.py','run_server']
         ports:
-          - containerPort: 5000
+        - containerPort: 5000
         env:
-          - name: WFLOW_DATABSE_URI
-            value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
-          - name: WFLOW_CELERY_REDIS_HOST
-            value: recast-backend-msg-queue.default.svc.cluster.local
-          - name: WFLOW_CELERY_REDIS_PORT
-            value: '6379'
-          - name: WFLOW_CELERY_REDIS_DB
-            value: '0'
-          - name: WFLOW_SUBJOB_BASE
-            value: '/subjoblogs'
-          - name: WFLOW_SUBJOB_TEMPLATE
-            value: '{}.{}.log'
-          - name: WFLOW_WFLOW_BASE
-            value: '/wflowlogs'
-          - name: WFLOW_WFLOW_TEMPLATE
-            value: '{}.{}.log'
-          - name: WFLOW_UPLOAD_IDENTITY_FILE
-            value: ''
-          - name: WFLOW_SERVER_PORT
-            value: '5000'
+        - name: WFLOW_DATABSE_URI
+          value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
+        - name: WFLOW_CELERY_REDIS_HOST
+          value: recast-backend-msg-queue.default.svc.cluster.local
+        - name: WFLOW_CELERY_REDIS_PORT
+          value: '6379'
+        - name: WFLOW_CELERY_REDIS_DB
+          value: '0'
+        - name: WFLOW_SUBJOB_BASE
+          value: '/subjoblogs'
+        - name: WFLOW_SUBJOB_TEMPLATE
+          value: '{}.{}.log'
+        - name: WFLOW_WFLOW_BASE
+          value: '/wflowlogs'
+        - name: WFLOW_WFLOW_TEMPLATE
+          value: '{}.{}.log'
+        - name: WFLOW_UPLOAD_IDENTITY_FILE
+          value: ''
+        - name: WFLOW_SERVER_PORT
+          value: '5000'
         volumeMounts:
-          - name: data
-            mountPath: /subjoblogs
-            subPath: joblogs
-          - name: data
-            mountPath: /wflowlogs
-            subPath: wflowlogs
+        - name: data
+          mountPath: /subjoblogs
+          subPath: joblogs
+        - name: data
+          mountPath: /wflowlogs
+          subPath: wflowlogs
       volumes:
       - name: data
         persistentVolumeClaim:

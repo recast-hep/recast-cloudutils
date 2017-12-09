@@ -37,6 +37,10 @@ spec:
             mountPath: /workflow_inputs
             subPath: workflow_inputs
             readOnly: false
+          {{ if eq .Values.HostOverlays true}}
+          - name: localoverlaycode
+            mountPath: /code
+          {{ end }}
         env:
           - name: YADAGE_UPLOADBASE
             value: /workflow_inputs
@@ -88,6 +92,11 @@ spec:
       - name: ssl
         secret:
           secretName: yadage-ssl
+      {{ if eq .Values.HostOverlays true}}
+      - name: localoverlaycode
+        hostPath:
+          path: {{ .Values.LocalOverlays.YadadageServerCode }}
+      {{end}}
       {{ if eq .Values.NodeAffinity true}}
       nodeSelector:
         role: yadagesvcnode

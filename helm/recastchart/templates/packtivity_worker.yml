@@ -12,7 +12,7 @@ spec:
       containers:
       - name: packtivity-worker
         image: recast/yadage-worker:{{.Values.ImageTags.worker}}
-        imagePullPolicy: Always
+        imagePullPolicy: {{.Values.ImagePullPolicy }}
         command:
         - sh
         - '-c'
@@ -33,7 +33,7 @@ spec:
           {{ end }}
 
           {{ if eq .Values.Storage.Type "localfs"}}
-          export WFLOW_IN_DOCKER_WORKDIRS_VOL="{{.Values.Storage.HostFS.WorkerPath}}workerdata" &&
+          export WFLOW_IN_DOCKER_WORKDIRS_VOL="{{.Values.Storage.HostFS.WorkerPath}}/workerdata" &&
           {{ end }}
 
           if [[ "$WORKERPOD_UID" -eq "null" ]];then echo "UID null"; exit 1;fi &&
@@ -68,6 +68,10 @@ spec:
             subPath: workerdata
           - name: dockerreg
             mountPath: /secrets/dockerreg
+          {{ if eq .Values.HostOverlays true}}
+          - name: localoverlaycode
+            mountPath: /yadage_plugin
+          {{ end }}
         resources:
         {{ if eq .Values.ResourceRequirements true}}
           requests:
@@ -96,6 +100,11 @@ spec:
           - name: PACKTIVITY_DOCKER_CMD_MOD
             value: ' --user root'
       volumes:
+      {{ if eq .Values.HostOverlays true}}
+      - name: localoverlaycode
+        hostPath:
+          path: {{ .Values.LocalOverlays.YadageWorkerCode }}
+      {{end}}
       - name: dockersocket
         hostPath:
           path: /var/run/docker.sock

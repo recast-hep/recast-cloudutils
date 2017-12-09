@@ -28,6 +28,10 @@ spec:
           - name: data
             mountPath: /srv/workerdata
             subPath: workerdata
+          {{ if eq .Values.HostOverlays true}}
+          - name: localoverlaycode
+            mountPath: /yadage_plugin
+          {{ end }}
         {{ if eq .Values.ResourceRequirements true}}
         resources:
           requests:
@@ -38,7 +42,7 @@ spec:
           - name: WFLOW_UPLOAD_DISABLE_KNOWN_HOST
             value: ok
           - name: WFLOW_DOWNLOAD_TOKEN
-            valueFrom:   
+            valueFrom:
               secretKeyRef:
                 name: yadagewebuiauth
                 key: bearer_token
@@ -70,6 +74,11 @@ spec:
                 name: yadageloadtoken
                 key: token
       volumes:
+      {{ if eq .Values.HostOverlays true}}
+      - name: localoverlaycode
+        hostPath:
+          path: {{ .Values.LocalOverlays.YadageWorkerCode }}
+      {{end}}
       - name: ssh
         secret:
           secretName: control-center-ssh
