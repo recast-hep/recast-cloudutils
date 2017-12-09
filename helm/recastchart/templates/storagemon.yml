@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: storagemon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: storagemon
+    spec:
+      containers:
+      - name: storagemon
+        image: busybox
+        command: ['tail','-f','/dev/null']
+        ports:
+        volumeMounts:
+          - name: data1
+            mountPath: /data1
+          - name: data2
+            mountPath: /data2
+          - name: data3
+            mountPath: /data3
+      volumes:
+      - name: data1
+        persistentVolumeClaim:
+          claimName: control-center-data
+      - name: data2
+        persistentVolumeClaim:
+          claimName: frontend-data
+      - name: data3
+        persistentVolumeClaim:
+          claimName: worker-data

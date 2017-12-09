@@ -52,3 +52,4 @@ EnableServiceSSL: 'hello'
 ContainerDetails:
   redisRoot: false
   postgresRoot: false
+HostOverlays: false
