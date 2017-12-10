@@ -30,7 +30,7 @@ spec:
             subPath: wflowlogs
         env:
           - name: LOGSTASH_REDIS_HOST
-            value: recast-backend-msg-queue.default.svc.cluster.local
+            value: backend-msg-queue.default.svc.cluster.local
           - name: LOGSTASH_WFLOW_LOGBASE
             value: /wflowlogs
           - name: LOGSTASH_JOB_LOGBASE

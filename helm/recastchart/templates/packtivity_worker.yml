@@ -82,7 +82,7 @@ spec:
           - name: C_FORCE_ROOT
             value: 'true'
           - name: PACKTIVITY_CELERY_REDIS_BROKER
-            value: 'redis://recast-backend-msg-queue.default.svc.cluster.local:6379/1'
+            value: 'redis://backend-msg-queue.default.svc.cluster.local:6379/1'
           - name: PACKTIVITY_AUTH_LOCATION
             value: /srv/wflow_auth
           - name: PACKTIVITY_CVMFS_SOURCE
@@ -96,7 +96,7 @@ spec:
           - name: PACKTIVITY_LOGGING_HANDLER
             value: 'wflowyadageworker.packredislogger:add_handlers'
           - name: PACKTIVITY_LOGGER_HOST
-            value: recast-backend-msg-queue.default.svc.cluster.local
+            value: backend-msg-queue.default.svc.cluster.local
           - name: PACKTIVITY_DOCKER_CMD_MOD
             value: ' --user root'
       volumes:

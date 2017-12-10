@@ -63,7 +63,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: control-center-oauth
-                key: secret         
+                key: secret
           - name: RECAST_BACKENDCONFIGFILE
             value: /secrets/backend/backendconfig.yml
           - name: RECAST_SSL_CERTFILE
@@ -85,7 +85,7 @@ spec:
           - name: RECAST_WORKFLOW_SERVER
             value: http://wflow-server.default.svc.cluster.local
           - name: RECAST_PROCDB_REDIS_HOST
-            value: recast-backend-msg-queue.default.svc.cluster.local
+            value: backend-msg-queue.default.svc.cluster.local
           - name: RECAST_PROCDB_REDIS_PORT
             value: '6379'
           - name: RECAST_SSL_ENABLE

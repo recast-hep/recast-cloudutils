@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yadage-job-template
+data:
+  job_template: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: null
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          name: null
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: worker
+            command:
+            - sh
+            - '-c'
+            - >-
+              mkdir -p ~/.ssh &&
+              cp ~/ssh_data/id_rsa ~/.ssh/id_rsa &&
+              chmod 0400 ~/.ssh/id_rsa &&
+              wflow-process setupFromURL generic_onsuccess cleanup {wflowid}
+            image: recast/yadage-worker:git-master
+            imagePullPolicy: IfNotPresent
+            workingDir: /srv/workerdata
+            volumeMounts:
+              - name: ssh
+                mountPath: /root/ssh_data
+              - name: data
+                mountPath: /srv/workerdata
+                subPath: workerdata
+              {{ if eq .Values.HostOverlays true}}
+              - name: localoverlaycode
+                mountPath: /yadage_plugin
+              {{ end }}
+            {{ if eq .Values.ResourceRequirements true}}
+            resources:
+              requests:
+                cpu: "0.5"  #will only fit one per 8VCPU node, but don't want to completely stuff it
+                memory: "0.2Gi" #2GB memory per core
+            {{ end }}
+            env:
+              - name: WFLOW_UPLOAD_DISABLE_KNOWN_HOST
+                value: ok
+              - name: WFLOW_DOWNLOAD_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: yadagewebuiauth
+                    key: bearer_token
+              - name: WFLOW_SERVER
+                value: http://wflow-server.default.svc.cluster.local
+              - name: WFLOW_DOWNLOAD_VERIFY_SSL
+                value: 'false'
+              - name: WFLOW_CELERY_REDIS_HOST
+                value: backend-msg-queue.default.svc.cluster.local
+              - name: WFLOW_CELERY_REDIS_PORT
+                value: '6379'
+              - name: WFLOW_CELERY_REDIS_DB
+                value: '0'
+              - name: WFLOW_QUEUE
+                value: 'yadage_queue'
+              - name: WFLOW_DOCKERHOST
+                value: hello
+              - name: WFLOW_YADAGEBACKEND
+                value: celery
+              - name: C_FORCE_ROOT
+                value: 'true'
+              - name: WFLOW_QUARANTINE_DIR
+                value: /srv/workerdata/quarantine
+              - name: PACKTIVITY_CELERY_DISABLE_SYNC
+                value: 'false'
+              - name: PACKTIVITY_CELERY_REDIS_BROKER
+                value: 'redis://backend-msg-queue.default.svc.cluster.local:6379/1'
+              - name: YADAGE_SCHEMA_LOAD_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: yadageloadtoken
+                    key: token
+          volumes:
+          {{ if eq .Values.HostOverlays true}}
+          - name: localoverlaycode
+            hostPath:
+              path: {{ .Values.LocalOverlays.YadageWorkerCode }}
+          {{end}}
+          - name: ssh
+            secret:
+              secretName: control-center-ssh
+          - name: data
+            persistentVolumeClaim:
+              claimName: worker-data

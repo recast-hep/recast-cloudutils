@@ -18,24 +18,35 @@ spec:
         - name: data
           mountPath: /beat
           subPath: beat
+        {{ if eq .Values.HostOverlays true}}
+        - name: localoverlaycode
+          mountPath: /code
+        {{ end }}
         env:
         - name: WFLOW_BEAT_BROKER
-          value: redis://recast-backend-msg-queue.default.svc.cluster.local:6379/2
+          value: redis://backend-msg-queue.default.svc.cluster.local:6379/2
       - name: wflow-beat-worker
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
         command: ['sh','-c','cd wflowserver && celery worker -A celeryapp -l debug -Q private_queue --concurrency 1'] ### NOTE DEADLOCKING
         env:
         - name: WFLOW_BEAT_BROKER
-          value: redis://recast-backend-msg-queue.default.svc.cluster.local:6379/2
+          value: redis://backend-msg-queue.default.svc.cluster.local:6379/2
         - name: WFLOW_DATABSE_URI
           value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
         - name: WFLOW_CELERY_REDIS_HOST
-          value: recast-backend-msg-queue.default.svc.cluster.local
+          value: backend-msg-queue.default.svc.cluster.local
         - name: WFLOW_CELERY_REDIS_PORT
           value: '6379'
         - name: WFLOW_CELERY_REDIS_DB
           value: '0'
+        volumeMounts:
+        - name: yadage-job-cm
+          mountPath: /yadage_job
+        {{ if eq .Values.HostOverlays true}}
+        - name: localoverlaycode
+          mountPath: /code
+        {{ end }}
       - name: wflow-server
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
@@ -46,7 +57,7 @@ spec:
         - name: WFLOW_DATABSE_URI
           value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
         - name: WFLOW_CELERY_REDIS_HOST
-          value: recast-backend-msg-queue.default.svc.cluster.local
+          value: backend-msg-queue.default.svc.cluster.local
         - name: WFLOW_CELERY_REDIS_PORT
           value: '6379'
         - name: WFLOW_CELERY_REDIS_DB
@@ -70,10 +81,22 @@ spec:
         - name: data
           mountPath: /wflowlogs
           subPath: wflowlogs
+        {{ if eq .Values.HostOverlays true}}
+        - name: localoverlaycode
+          mountPath: /code
+        {{ end }}
       volumes:
+      {{ if eq .Values.HostOverlays true}}
+      - name: localoverlaycode
+        hostPath:
+          path: {{ .Values.LocalOverlays.WflowServerCode }}
+      {{end}}
       - name: data
         persistentVolumeClaim:
           claimName: control-center-data
+      - name: yadage-job-cm
+        configMap:
+          name: yadage-job-template
 ---
 apiVersion: v1
 kind: Service

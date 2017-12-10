@@ -40,7 +40,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: recast-backend-msg-queue
+  name: backend-msg-queue
 spec:
   type: {{ .Values.InternalServiceType }}
   ports:
