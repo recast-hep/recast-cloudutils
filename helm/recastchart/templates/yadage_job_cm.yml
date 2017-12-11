@@ -26,7 +26,7 @@ data:
               chmod 0400 ~/.ssh/id_rsa &&
               wflow-process setupFromURL generic_onsuccess cleanup {wflowid}
             image: recast/yadage-worker:git-master
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             workingDir: /srv/workerdata
             volumeMounts:
               - name: ssh
