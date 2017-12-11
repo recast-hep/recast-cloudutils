@@ -34,12 +34,8 @@ spec:
           value: redis://backend-msg-queue.default.svc.cluster.local:6379/2
         - name: WFLOW_DATABSE_URI
           value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
-        - name: WFLOW_CELERY_REDIS_HOST
-          value: backend-msg-queue.default.svc.cluster.local
-        - name: WFLOW_CELERY_REDIS_PORT
-          value: '6379'
-        - name: WFLOW_CELERY_REDIS_DB
-          value: '0'
+        - name: WFLOW_BACKEND_REDIS_URL
+          value: redis://backend-msg-queue.default.svc.cluster.local:6379/0
         volumeMounts:
         - name: yadage-job-cm
           mountPath: /yadage_job
@@ -56,12 +52,8 @@ spec:
         env:
         - name: WFLOW_DATABSE_URI
           value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
-        - name: WFLOW_CELERY_REDIS_HOST
-          value: backend-msg-queue.default.svc.cluster.local
-        - name: WFLOW_CELERY_REDIS_PORT
-          value: '6379'
-        - name: WFLOW_CELERY_REDIS_DB
-          value: '0'
+        - name: WFLOW_BACKEND_REDIS_URL
+          value: redis://backend-msg-queue.default.svc.cluster.local:6379/0
         - name: WFLOW_SUBJOB_BASE
           value: '/subjoblogs'
         - name: WFLOW_SUBJOB_TEMPLATE
