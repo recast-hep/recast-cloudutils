@@ -25,7 +25,7 @@ data:
               cp ~/ssh_data/id_rsa ~/.ssh/id_rsa &&
               chmod 0400 ~/.ssh/id_rsa &&
               wflow-process setupFromURL generic_onsuccess cleanup {wflowid}
-            image: recast/yadage-worker:git-master
+            image: recast/yadage-worker:{{.Values.ImageTags.worker}}
             imagePullPolicy: Always
             workingDir: /srv/workerdata
             volumeMounts:
@@ -56,20 +56,12 @@ data:
                 value: http://wflow-server.default.svc.cluster.local
               - name: WFLOW_DOWNLOAD_VERIFY_SSL
                 value: 'false'
-              - name: WFLOW_CELERY_REDIS_HOST
-                value: backend-msg-queue.default.svc.cluster.local
-              - name: WFLOW_CELERY_REDIS_PORT
-                value: '6379'
-              - name: WFLOW_CELERY_REDIS_DB
-                value: '0'
-              - name: WFLOW_QUEUE
-                value: 'yadage_queue'
+              - name: WFLOW_BACKEND_REDIS_URL
+                value: redis://backend-msg-queue.default.svc.cluster.local:6379/0
               - name: WFLOW_DOCKERHOST
                 value: hello
               - name: WFLOW_YADAGEBACKEND
                 value: celery
-              - name: C_FORCE_ROOT
-                value: 'true'
               - name: WFLOW_QUARANTINE_DIR
                 value: /srv/workerdata/quarantine
               - name: PACKTIVITY_CELERY_DISABLE_SYNC
