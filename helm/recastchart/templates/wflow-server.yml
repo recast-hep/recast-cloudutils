@@ -1,3 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wflow-server-cm
+data:
+  wflowslots: "{{ .Values.wflowserver.wflowslots }}"
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -30,6 +37,11 @@ spec:
         imagePullPolicy: {{.Values.ImagePullPolicy }}
         command: ['sh','-c','cd wflowserver && celery worker -A celeryapp -l debug -Q private_queue --concurrency 1'] ### NOTE DEADLOCKING
         env:
+        - name: WFLOW_NSLOTS
+          valueFrom:
+            configMapKeyRef:
+              name: wflow-server-cm
+              key: wflowslots
         - name: WFLOW_BEAT_BROKER
           value: redis://backend-msg-queue.default.svc.cluster.local:6379/2
         - name: WFLOW_DATABSE_URI

@@ -53,3 +53,5 @@ ContainerDetails:
   redisRoot: false
   postgresRoot: false
 HostOverlays: false
+wflowserver:
+  wflowslots: 25
