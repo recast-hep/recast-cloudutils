@@ -18,8 +18,8 @@ def make_helm_values(infile,filebase,outfile):
 
     for k,v in data['files'].items():
         filetoget = os.path.join(filebase,v)
-        print 'getting file {}'.format(filetoget)
-        data['files'][k] = base64.b64encode(open(filetoget).read())
+        click.secho('getting file {}'.format(filetoget))
+        data['files'][k] = base64.b64encode(open(filetoget,'rb').read())
 
 
     yaml.dump(data,open(outfile,'w'), default_flow_style = False)

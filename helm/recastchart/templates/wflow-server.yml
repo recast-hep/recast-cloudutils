@@ -16,6 +16,7 @@ spec:
       labels:
         app: wflow-server
     spec:
+      serviceAccountName: wflowmanager
       containers:
       - name: wflow-beat
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
@@ -35,7 +36,7 @@ spec:
       - name: wflow-beat-worker
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
-        command: ['sh','-c','cd wflowserver && celery worker -A celeryapp -l debug -Q private_queue --concurrency 1'] ### NOTE DEADLOCKING
+        command: ['sh','-c','cd wflowserver && celery worker -A celeryapp -l info -Q private_queue --concurrency 1'] ### NOTE DEADLOCKING
         env:
         - name: WFLOW_NSLOTS
           valueFrom:
@@ -49,7 +50,7 @@ spec:
         - name: WFLOW_BACKEND_REDIS_URL
           value: redis://backend-msg-queue.default.svc.cluster.local:6379/0
         volumeMounts:
-        - name: yadage-job-cm
+        - name: yadage-engine-conf
           mountPath: /yadage_job
         {{ if eq .Values.HostOverlays true}}
         - name: localoverlaycode
@@ -98,9 +99,9 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: control-center-data
-      - name: yadage-job-cm
+      - name: yadage-engine-conf
         configMap:
-          name: yadage-job-template
+          name: wflow-engine-conf-yadage
 ---
 apiVersion: v1
 kind: Service
