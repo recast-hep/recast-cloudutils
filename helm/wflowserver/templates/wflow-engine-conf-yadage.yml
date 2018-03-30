@@ -1,0 +1,219 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wflow-engine-conf-yadage
+data:
+  backendopts: |
+    namespace: default
+    incluster: true
+    stateopts:
+      type: sharedvol
+      shared_mount: /srv
+      shared_volume:
+        persistentVolumeClaim:
+          claimName: {{ .Values.wflowworkerclaim }}
+    resource_labels:
+        component: wflow-job
+        jobid: '{jobid}'
+    resources_opts:
+      requests:
+        memory: "0.2Gi"
+        cpu: "200m"
+  int_template: |
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      labels:
+        wflowid: null
+        app: null
+        component: wflow-engine
+        engine_type: yadage
+        interactive: "true"
+      name: null
+    spec:
+      template:
+        metadata:
+          labels:
+            wflowid: null
+            app: null
+            component: wflow-engine
+            engine_type: yadage
+            interactive: "true"
+        spec:
+          serviceAccountName: wflowengine
+          containers:
+          - command:
+            - sh
+            - -c
+            - >-
+              mkdir -p ~/.ssh && cp ~/ssh_data/id_rsa ~/.ssh/id_rsa &&
+              chmod 0400 ~/.ssh/id_rsa &&
+              wflow-process-server setupFromURL generic_onsuccess cleanup {wflowid}
+            env:
+            - name: WFLOW_DOWNLOAD_TOKEN
+              value: {{ .Values.data_download_token }}
+            - name: WFLOW_SERVER
+              value: http://wflow-server.default.svc.cluster.local
+            - name: WFLOW_DOWNLOAD_VERIFY_SSL
+              value: "false"
+            - name: WFLOW_BACKEND_REDIS_URL
+              value: redis://{{.Values.infra.msg_queue }}:6379/0
+            - name: WFLOW_QUARANTINE_DIR
+              value: /srv/workerdata/quarantine
+            image: recast/yadage-worker:{{.Values.ImageTags.worker}}
+            imagePullPolicy: {{.Values.ImagePullPolicy }}
+            name: backend-server
+            ports:
+            - containerPort: 5000
+              name: http
+              protocol: TCP
+            readinessProbe:
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              httpGet:
+                path: /readyz
+                port: 5000
+            resources: {}
+            volumeMounts:
+            - mountPath: /root/ssh_data
+              name: ssh
+            - mountPath: /srv/workerdata
+              name: data
+              subPath: workerdata
+            workingDir: /srv/workerdata
+          - command: [wflow-yadage-server]
+            image: recast/yadage-worker:{{.Values.ImageTags.worker}}
+            imagePullPolicy: {{.Values.ImagePullPolicy }}
+            name: engine-server
+            ports:
+            - containerPort: 8888
+              name: http
+              protocol: TCP
+            readinessProbe:
+              initialDelaySeconds: 5
+              periodSeconds: 5
+              httpGet:
+                path: /readyz
+                port: 8888
+            resources: {}
+            volumeMounts:
+            - name: engineconfig
+              mountPath: /yadageconfig
+            - mountPath: /srv/workerdata
+              name: data
+              subPath: workerdata
+            workingDir: /srv/workerdata
+          volumes:
+          - name: ssh
+            secret:
+              secretName: wflow-shiptarget-ssh
+          - name: data
+            persistentVolumeClaim:
+              claimName: {{ .Values.wflowworkerclaim }}
+          - name: engineconfig
+            configMap:
+              name: wflow-engine-conf-yadage
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: null
+    spec:
+      type: NodePort
+      ports:
+      - port: 8080
+        name: service
+        targetPort: 5000
+        protocol: TCP
+      - port: 80
+        name: engine
+        targetPort: 8888
+        protocol: TCP
+      selector:
+        app: null
+    ---
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: null
+      annotations:
+        traefik.frontend.rule.type: PathPrefixStrip
+    spec:
+      rules:
+      - host: {{.Values.DNS.interactive_host}}
+        http:
+          paths:
+          - path: '/control/{wflowid}'
+            backend:
+              serviceName: null
+              servicePort: 80
+  job_template: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: null
+      labels:
+        wflowid: null
+        component: wflow-engine
+        engine_type: yadage
+        interactive: "false"
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          name: null
+          labels:
+            wflowid: null
+            component: wflow-engine
+            engine_type: yadage
+            interactive: "false"
+        spec:
+          restartPolicy: Never
+          serviceAccountName: wflowengine
+          containers:
+          - name: worker
+            command:
+            - sh
+            - '-c'
+            - >-
+              mkdir -p ~/.ssh &&
+              cp ~/ssh_data/id_rsa ~/.ssh/id_rsa &&
+              chmod 0400 ~/.ssh/id_rsa &&
+              wflow-process setupFromURL generic_onsuccess cleanup --config-from-server {wflowid}
+            image: recast/yadage-worker:{{.Values.ImageTags.worker}}
+            imagePullPolicy: Always
+            workingDir: /srv/workerdata
+            volumeMounts:
+              - name: ssh
+                mountPath: /root/ssh_data
+              - name: data
+                subPath: workerdata
+                mountPath: /srv/workerdata
+              - name: engineconfig
+                mountPath: /yadageconfig
+            env:
+              - name: WFLOW_DOWNLOAD_TOKEN
+                value: {{ .Values.data_download_token }}
+              - name: WFLOW_SERVER
+                value: http://wflow-server.default.svc.cluster.local
+              - name: WFLOW_BACKEND_REDIS_URL
+                value: redis://{{.Values.infra.msg_queue}}:6379/0
+              - name: WFLOW_DOWNLOAD_VERIFY_SSL
+                value: 'false'
+              - name: WFLOW_QUARANTINE_DIR
+                value: /srv/workerdata/quarantine
+              - name: YADAGE_SCHEMA_LOAD_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: yadageloadtoken
+                    key: token
+          volumes:
+          - name: ssh
+            secret:
+              secretName: wflow-shiptarget-ssh
+          - name: data
+            persistentVolumeClaim:
+              claimName: {{ .Values.wflowworkerclaim }}
+          - name: engineconfig
+            configMap:
+              name: wflow-engine-conf-yadage
