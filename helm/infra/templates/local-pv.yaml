@@ -1,0 +1,86 @@
+{{ if eq .Values.Storage.Type "localfs"}}
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-01
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.CCSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.CCPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-02
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.FrontendSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.FrontendPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-03
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.WorkerSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.WorkerPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-04
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.InfraSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.InfraPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-05
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.WorkflowSvcSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.WorkflowSvcPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-06
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.YadageSvcSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.YadageSvcPath }}
+{{end}}

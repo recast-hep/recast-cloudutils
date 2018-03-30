@@ -1,7 +1,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: worker-data
+  name: wflowworker-data
+  labels:
+    component: infra
 spec:
   storageClassName: ""
   accessModes:
@@ -13,7 +15,23 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
+  name: wflowsvc-data
+  labels:
+    component: infra
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.Storage.WorkflowSvcSize }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
   name: frontend-data
+  labels:
+    component: infra
 spec:
   storageClassName: ""
   accessModes:
@@ -26,6 +44,8 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: control-center-data
+  labels:
+    component: infra
 spec:
   storageClassName: ""
   accessModes:
@@ -33,3 +53,17 @@ spec:
   resources:
     requests:
       storage: {{ .Values.Storage.CCSize }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: infra-data
+  labels:
+    component: infra
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.Storage.InfraSize }}

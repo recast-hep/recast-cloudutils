@@ -29,9 +29,9 @@ spec:
           - name: ssl
             mountPath: /secrets/ssl
             readOnly: true
-          - name: data
-            mountPath: /recastresults
-            subPath: recastresults
+          - name: wflowresults
+            mountPath: /results
+            subPath: results
             readOnly: true
           - name: data
             mountPath: /workflow_inputs
@@ -45,23 +45,27 @@ spec:
           - name: YADAGE_UPLOADBASE
             value: /workflow_inputs
           - name: YADAGE_WORKFLOW_SERVER
-            value: http://wflow-server.default.svc.cluster.local
+            value: http://{{ .Values.services.wflowserver }}
           - name: YADAGE_SHIPTARGET_USER
             value: root
           - name: YADAGE_SHIPTARGET_HOST
-            value: recast-backend-shiptarget.default.svc.cluster.local
+            value: {{ .Values.services.shiptarget }}
           - name: YADAGE_SHIPTARGET_PORT
             value: '2022'
           - name: YADAGE_RESULTBASE
-            value: /recastresults/yadagesvc
+            value: /results/yadagesvc
           - name: YADAGE_WORKFLOW_QUEUE
             value: yadage_queue
           - name: YADAGE_JOBDB_URI
-            value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
+            value: 'postgres://postgres:postgres@{{ .Values.services.database }}'
           - name: YADAGE_SSL_KEY
             value: '/secrets/ssl/server.key'
           - name: YADAGE_SSL_CERT
             value: '/secrets/ssl/server.crt'
+          {{ if eq .Values.OAuth.Dummy true}}
+          - name: CERN_DUMMY_LOGIN
+            value: 'yes'
+          {{ end }}
           - name: CERN_OAUTH_TOKENURL
             value: 'https://oauth.web.cern.ch/OAuth/Token'
           - name: CERN_OAUTH_AUTHORIZEURL
@@ -86,9 +90,12 @@ spec:
                 name: yadagewebuiauth
                 key: bearer_token
       volumes:
+      - name: wflowresults
+        persistentVolumeClaim:
+          claimName: {{ .Values.resultsclaim }}
       - name: data
         persistentVolumeClaim:
-          claimName: control-center-data
+          claimName: {{ .Values.yadagesvcclaim }}
       - name: ssl
         secret:
           secretName: yadage-ssl
@@ -107,7 +114,7 @@ kind: Service
 metadata:
   name: yadage-service-webui
 spec:
-  type: NodePort
+  type: {{ .Values.InternalServiceType }}
   ports:
   - port: 443
     nodePort: 32453

@@ -5,12 +5,16 @@ data:
 kind: Secret
 metadata:
   name: ceph-secret
+  labels:
+    component: infra
 type: Opaque
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: recast-cluster-pv-01
+  labels:
+    component: infra
 spec:
   capacity:
     storage: {{ .Values.Storage.CCSize }}
@@ -30,6 +34,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: recast-cluster-pv-02
+  labels:
+    component: infra
 spec:
   capacity:
     storage: {{ .Values.Storage.WorkerSize }}
@@ -49,9 +55,53 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: recast-cluster-pv-03
+  labels:
+    component: infra
 spec:
   capacity:
     storage: {{ .Values.Storage.FrontendSize }}
+  accessModes:
+  - "ReadWriteMany"
+  cephfs:
+    monitors:
+    {{- range .Values.Storage.CephFS.Monitors }}
+    - {{ . | quote }}
+    {{- end }}
+    user: {{ .Values.Storage.CephFS.User }}
+    secretRef:
+      name: ceph-secret
+    path: {{ .Values.Storage.CephFS.Path }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-04
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.InfraSize }}
+  accessModes:
+  - "ReadWriteMany"
+  cephfs:
+    monitors:
+    {{- range .Values.Storage.CephFS.Monitors }}
+    - {{ . | quote }}
+    {{- end }}
+    user: {{ .Values.Storage.CephFS.User }}
+    secretRef:
+      name: ceph-secret
+    path: {{ .Values.Storage.CephFS.Path }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: recast-cluster-pv-05
+  labels:
+    component: infra
+spec:
+  capacity:
+    storage: {{ .Values.Storage.WorkflowSvcSize }}
   accessModes:
   - "ReadWriteMany"
   cephfs:

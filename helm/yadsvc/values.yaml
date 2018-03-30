@@ -1,0 +1,29 @@
+ResourceRequirements: true
+HostOverlays: false
+HostPorts: true
+ImageTags:
+  yadage_web: git-master
+ImagePullPolicy: Always
+LocalOverlays:
+  YadadageServerCode: null
+NodeAffinity: true
+ResourceRequirements: true
+DNS:
+  yadage_service: yadage.cern.ch
+OAuth:
+  Dummy: false
+  yadage_service:
+    app_id: 'yadagestaging'
+    secret: 'vMN5sWSdwBBvJWnQv1Lv6jDiUNSBveAI11TxC2v0SjM1'
+InternalServiceType: NodePort
+yadage:
+  bearer_token: mybearer
+files:
+  yadage_ssl_crt: aGVsbG93b3JsZA==
+  yadage_ssl_key: aGVsbG93b3JsZA==
+services:
+  database: infra-db.default.svc.cluster.local
+  wflowserver: wflow-server.default.svc.cluster.local
+  shiptarget: wflow-shiptarget.default.svc.cluster.local
+resultsclaim: wflowsvc-data
+yadagesvcclaim: yadagesvcclaim

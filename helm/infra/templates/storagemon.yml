@@ -1,13 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: storagemon
+  name: infra-storagemon
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: storagemon
+        app: infra-storagemon
     spec:
       containers:
       - name: storagemon
@@ -17,17 +17,7 @@ spec:
         volumeMounts:
           - name: data1
             mountPath: /data1
-          - name: data2
-            mountPath: /data2
-          - name: data3
-            mountPath: /data3
       volumes:
       - name: data1
         persistentVolumeClaim:
-          claimName: control-center-data
-      - name: data2
-        persistentVolumeClaim:
-          claimName: frontend-data
-      - name: data3
-        persistentVolumeClaim:
-          claimName: worker-data
+          claimName: {{.Values.infraclaim }}

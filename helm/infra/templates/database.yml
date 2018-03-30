@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: backend-db
+  name: infra-db
+  labels:
+    component: infra
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: backend-db
+        app: infra-db
+        component: infra
     spec:
       containers:
-      - name: python
-        image: python
-        command: [tail,-f,/dev/null]
       - name: postgres
         image: postgres:10
         {{ if .Values.ContainerDetails.postgresRoot }}
@@ -29,20 +29,33 @@ spec:
         ports:
           - containerPort: 5432
             name: postgres
+      - name: pgweb
+        image: sosedoff/pgweb
+        ports:
+          - containerPort: 8081
+            name: pgweg
+        env:
+          - name: DATABASE_URL
+            value: postgres://postgres:postgres@localhost:5432
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: control-center-data
+          claimName: {{ .Values.infraclaim }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-db
+  name: infra-db
+  labels:
+    component: infra
 spec:
   type: {{ .Values.InternalServiceType }}
   ports:
   - port: 5432
     targetPort: 5432
     name: postgres
+  - port: 8081
+    targetPort: 8081
+    name: pgweb
   selector:
-    app: backend-db
+    app: infra-db

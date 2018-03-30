@@ -1,13 +1,16 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: msg-queue
+  name: infra-msg-queue
+  labels:
+    component: infra
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: msg-queue
+        app: infra-msg-queue
+        component: infra
     spec:
       containers:
       - name: redis
@@ -35,17 +38,20 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: control-center-data
+          claimName: {{ .Values.infraclaim }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-msg-queue
+  name: infra-msg-queue
+  labels:
+    component: infra
 spec:
   type: {{ .Values.InternalServiceType }}
   ports:
   - port: 6379
     targetPort: 6379
+    nodePort: 32100
     name: redis
   selector:
-    app: msg-queue
+    app: infra-msg-queue

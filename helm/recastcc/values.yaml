@@ -1,0 +1,26 @@
+DNS:
+  control_center: recast-control.cern.ch
+EnableServiceSSL: 'hello'
+HostPorts: true
+ImagePullPolicy: Always
+ImageTags:
+  control_center: git-master
+NodeAffinity: true
+OAuth:
+  control_center:
+    app_id: 'anappid'
+    secret: 'asecret'
+ResourceRequirements: true
+files:
+  cc_config_yaml: cc_config_yaml
+  cc_ssl_crt: cc_ssl_crt
+  cc_ssl_key: cc_ssl_key
+localsource:
+  control_center: 'none'
+recast_api: https://frontend.default.svc.cluster.local:81/
+wflow_server: http://wflow-server.default.svc.cluster.local
+msg_queue: backend-msg-queue.default.svc.cluster.local
+shiptarget: wflow-shiptarget.default.svc.cluster.local
+
+resultsdataclaim: resultsdataclaim
+ccstorageclaim: ccstorageclaim

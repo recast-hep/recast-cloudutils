@@ -1,13 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: shiptarget
+  name: wflow-shiptarget
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: shiptarget
+        app: wflow-shiptarget
     spec:
       containers:
       - name: shiptarget
@@ -18,23 +18,23 @@ spec:
             mountPath: /secrets/ssh
             readOnly: true
           - name: data
-            mountPath: /recastresults
-            subPath: recastresults
+            mountPath: /results
+            subPath: results
         ports:
           - containerPort: 22
             name: ssh
       volumes:
       - name: ssh
         secret:
-          secretName: control-center-ssh
+          secretName: wflow-shiptarget-ssh
       - name: data
         persistentVolumeClaim:
-          claimName: control-center-data
+          claimName: {{ .Values.wflowsvcclaim }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: recast-backend-shiptarget
+  name: wflow-shiptarget
 spec:
   type: {{ .Values.InternalServiceType }}
   ports:
@@ -42,4 +42,4 @@ spec:
     targetPort: 22
     name: ssh
   selector:
-    app: shiptarget
+    app: wflow-shiptarget

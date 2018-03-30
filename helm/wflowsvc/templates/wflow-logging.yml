@@ -30,7 +30,7 @@ spec:
             subPath: wflowlogs
         env:
           - name: LOGSTASH_REDIS_HOST
-            value: backend-msg-queue.default.svc.cluster.local
+            value: {{.Values.infra.msg_queue}}
           - name: LOGSTASH_WFLOW_LOGBASE
             value: /wflowlogs
           - name: LOGSTASH_JOB_LOGBASE
@@ -38,4 +38,4 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: control-center-data
+          claimName: {{.Values.wflowsvcclaim}}

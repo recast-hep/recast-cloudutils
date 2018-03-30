@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Infrastructure for HEP workflow services
+name: infra
+version: 0.1.0

@@ -1,0 +1,24 @@
+InternalServiceType: ClusterIP
+ResourceRequirements: true
+ContainerDetails:
+  redisRoot: false
+  postgresRoot: false
+infraclaim: infra-data
+Storage:
+  Type: "localfs"
+  CCSize: 0.1Gi
+  WorkerSize: 0.1Gi
+  FrontendSize: 0.1Gi
+  InfraSize: 0.1Gi
+  WorkflowSvcSize: 0.1Gi
+  YadageSvcSize: 0.1Gi
+  CephFS:
+    Monitors: []
+    Path: '/a/path/to/cephfs/volume'
+  HostFS:
+    CCPath: /data/pv0001/
+    FrontendPath: /data/pv0002/
+    WorkerPath: /data/pv0003/
+    InfraPath: /data/pv0004/
+    WorkflowSvcPath: /data/pv0005/
+    YadageSvcPath: /data/pv0006/

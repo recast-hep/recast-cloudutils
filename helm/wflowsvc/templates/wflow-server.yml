@@ -32,7 +32,7 @@ spec:
         {{ end }}
         env:
         - name: WFLOW_BEAT_BROKER
-          value: redis://backend-msg-queue.default.svc.cluster.local:6379/2
+          value: redis://{{.Values.infra.msg_queue}}:6379/2
       - name: wflow-beat-worker
         image: recast/wflowserver:{{.Values.ImageTags.wflow_server}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
@@ -44,11 +44,11 @@ spec:
               name: wflow-server-cm
               key: wflowslots
         - name: WFLOW_BEAT_BROKER
-          value: redis://backend-msg-queue.default.svc.cluster.local:6379/2
+          value: redis://{{.Values.infra.msg_queue}}:6379/2
         - name: WFLOW_DATABSE_URI
-          value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
+          value: 'postgres://postgres:postgres@{{.Values.infra.database}}'
         - name: WFLOW_BACKEND_REDIS_URL
-          value: redis://backend-msg-queue.default.svc.cluster.local:6379/0
+          value: redis://{{.Values.infra.msg_queue}}:6379/0
         volumeMounts:
         - name: yadage-engine-conf
           mountPath: /yadage_job
@@ -64,17 +64,17 @@ spec:
         - containerPort: 5000
         env:
         - name: WFLOW_DATABSE_URI
-          value: 'postgres://postgres:postgres@backend-db.default.svc.cluster.local'
+          value: 'postgres://postgres:postgres@{{.Values.infra.database}}'
         - name: WFLOW_BACKEND_REDIS_URL
-          value: redis://backend-msg-queue.default.svc.cluster.local:6379/0
+          value: redis://{{.Values.infra.msg_queue}}:6379/0
         - name: WFLOW_SUBJOB_BASE
           value: '/subjoblogs'
         - name: WFLOW_SUBJOB_TEMPLATE
-          value: '{}.{}.log'
+          value: '{}/{}.log'
         - name: WFLOW_WFLOW_BASE
           value: '/wflowlogs'
         - name: WFLOW_WFLOW_TEMPLATE
-          value: '{}.{}.log'
+          value: '{}/{}.log'
         - name: WFLOW_UPLOAD_IDENTITY_FILE
           value: ''
         - name: WFLOW_SERVER_PORT
@@ -98,7 +98,7 @@ spec:
       {{end}}
       - name: data
         persistentVolumeClaim:
-          claimName: control-center-data
+          claimName: {{.Values.wflowsvcclaim}}
       - name: yadage-engine-conf
         configMap:
           name: wflow-engine-conf-yadage
