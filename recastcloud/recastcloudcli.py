@@ -11,12 +11,12 @@ def cloudcli():
 
 @cloudcli.command()
 @click.argument('infile')
-@click.argument('filebase')
+@click.option('-b','--filebase', default = os.getcwd() )
 @click.option('-o','--outfile', default=None)
 def make_helm_values(infile,filebase,outfile):
     data = yaml.load(open(infile))
 
-    for k,v in data['files'].items():
+    for k,v in data.get('files',{}).items():
         filetoget = os.path.join(filebase,v)
         data['files'][k] = base64.b64encode(open(filetoget,'rb').read()).decode('utf-8')
 

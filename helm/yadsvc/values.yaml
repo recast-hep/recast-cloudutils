@@ -25,5 +25,5 @@ services:
   database: infra-db.default.svc.cluster.local
   wflowserver: wflow-server.default.svc.cluster.local
   shiptarget: wflow-shiptarget.default.svc.cluster.local
-resultsclaim: wflowsvc-data
-yadagesvcclaim: yadagesvcclaim
+resultsclaim: wflowserver-data
+yadagesvcclaim: yadagesvc-data

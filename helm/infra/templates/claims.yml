@@ -1,6 +1,23 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
+  name: infra-data
+  labels:
+    component: infra
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.Storage.InfraSize }}
+  selector:
+    matchLabels:
+      target: infra
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
   name: wflowworker-data
   labels:
     component: infra
@@ -11,11 +28,14 @@ spec:
   resources:
     requests:
       storage: {{ .Values.Storage.WorkerSize }}
+  selector:
+    matchLabels:
+      target: wflowworker
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: wflowsvc-data
+  name: wflowserver-data
   labels:
     component: infra
 spec:
@@ -25,11 +45,14 @@ spec:
   resources:
     requests:
       storage: {{ .Values.Storage.WorkflowSvcSize }}
+  selector:
+    matchLabels:
+      target: wflowserver
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: frontend-data
+  name: yadagesvc-data
   labels:
     component: infra
 spec:
@@ -38,7 +61,10 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ .Values.Storage.FrontendSize }}
+      storage: {{ .Values.Storage.YadageSvcSize }}
+  selector:
+    matchLabels:
+      target: yadagesvc
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -53,11 +79,14 @@ spec:
   resources:
     requests:
       storage: {{ .Values.Storage.CCSize }}
+  selector:
+    matchLabels:
+      target: recast-control-center
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: infra-data
+  name: frontend-data
   labels:
     component: infra
 spec:
@@ -66,4 +95,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ .Values.Storage.InfraSize }}
+      storage: {{ .Values.Storage.FrontendSize }}
+  selector:
+    matchLabels:
+      target: recast-frontend

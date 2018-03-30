@@ -3,51 +3,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: recast-cluster-pv-01
+  name: cluster-pv-infra
   labels:
     component: infra
-spec:
-  capacity:
-    storage: {{ .Values.Storage.CCSize }}
-  accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: {{ .Values.Storage.HostFS.CCPath }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: recast-cluster-pv-02
-  labels:
-    component: infra
-spec:
-  capacity:
-    storage: {{ .Values.Storage.FrontendSize }}
-  accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: {{ .Values.Storage.HostFS.FrontendPath }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: recast-cluster-pv-03
-  labels:
-    component: infra
-spec:
-  capacity:
-    storage: {{ .Values.Storage.WorkerSize }}
-  accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: {{ .Values.Storage.HostFS.WorkerPath }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: recast-cluster-pv-04
-  labels:
-    component: infra
+    target: infra
 spec:
   capacity:
     storage: {{ .Values.Storage.InfraSize }}
@@ -59,9 +18,25 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: recast-cluster-pv-05
+  name: cluster-pv-wflowworker
   labels:
     component: infra
+    target: wflowworker
+spec:
+  capacity:
+    storage: {{ .Values.Storage.WorkerSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.WorkerPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cluster-pv-wflowserver
+  labels:
+    component: infra
+    target: wflowserver
 spec:
   capacity:
     storage: {{ .Values.Storage.WorkflowSvcSize }}
@@ -73,9 +48,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: recast-cluster-pv-06
+  name: cluster-pv-yadagesvc
   labels:
     component: infra
+    target: yadagesvc
 spec:
   capacity:
     storage: {{ .Values.Storage.YadageSvcSize }}
@@ -83,4 +59,34 @@ spec:
     - ReadWriteMany
   hostPath:
     path: {{ .Values.Storage.HostFS.YadageSvcPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cluster-pv-cc
+  labels:
+    component: infra
+    target: recast-control-center
+spec:
+  capacity:
+    storage: {{ .Values.Storage.CCSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.CCPath }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cluster-pv-frontend
+  labels:
+    component: infra
+    target: recast-frontend
+spec:
+  capacity:
+    storage: {{ .Values.Storage.FrontendSize }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ .Values.Storage.HostFS.FrontendPath }}
 {{end}}
