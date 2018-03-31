@@ -17,8 +17,10 @@ data:
         jobid: '{jobid}'
     resources_opts:
       requests:
-        memory: "0.2Gi"
-        cpu: "200m"
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        cpu: "500m"
   int_template: |
     apiVersion: extensions/v1beta1
     kind: Deployment
@@ -63,6 +65,11 @@ data:
             image: recast/yadage-worker:{{.Values.ImageTags.worker}}
             imagePullPolicy: {{.Values.ImagePullPolicy }}
             name: backend-server
+            resources:
+              requests:
+                cpu: "10m"
+              limits:
+                cpu: "10m"
             ports:
             - containerPort: 5000
               name: http
@@ -85,6 +92,11 @@ data:
             image: recast/yadage-worker:{{.Values.ImageTags.worker}}
             imagePullPolicy: {{.Values.ImagePullPolicy }}
             name: engine-server
+            resources:
+              requests:
+                cpu: "10m"
+              limits:
+                cpu: "10m"
             ports:
             - containerPort: 8888
               name: http
@@ -182,6 +194,11 @@ data:
               wflow-process setupFromURL generic_onsuccess cleanup --config-from-server {wflowid}
             image: recast/yadage-worker:{{.Values.ImageTags.worker}}
             imagePullPolicy: Always
+            resources:
+              requests:
+                cpu: "10m"
+              limits:
+                cpu: "10m"
             workingDir: /srv/workerdata
             volumeMounts:
               - name: ssh

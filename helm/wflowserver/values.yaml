@@ -12,11 +12,11 @@ ImageTags:
 InternalServiceType: ClusterIP
 ResourceRequirements: true
 files:
-  getkrb_sh: dummyvalue_should_be_base64_file_content
-  getmyproxy_sh: dummyvalue_should_be_base64_file_content
-  grid_crt: dummyvalue_should_be_base64_file_content
-  grid_key: dummyvalue_should_be_base64_file_content
-  krb_keytab: dummyvalue_should_be_base64_file_content
+  getkrb_sh: aGVsbG8=
+  getmyproxy_sh: aGVsbG8=
+  grid_crt: aGVsbG8=
+  grid_key: aGVsbG8=
+  krb_keytab: aGVsbG8=
   shiptarget_id_rsa: dummyvalue_should_be_base64_file_content
   shiptarget_id_rsa_pub: dummyvalue_should_be_base64_file_content
 grid_pw: grid_pw
