@@ -19,11 +19,12 @@ InternalServiceType: NodePort
 yadage:
   bearer_token: mybearer
 files:
-  yadage_ssl_crt: aGVsbG93b3JsZA==
-  yadage_ssl_key: aGVsbG93b3JsZA==
+  yadage_ssl_crt: dummyvalue_should_be_base64_file_content
+  yadage_ssl_key: dummyvalue_should_be_base64_file_content
 services:
   database: infra-db.default.svc.cluster.local
   wflowserver: wflow-server.default.svc.cluster.local
   shiptarget: wflow-shiptarget.default.svc.cluster.local
+
 resultsclaim: wflowserver-data
 yadagesvcclaim: yadagesvc-data

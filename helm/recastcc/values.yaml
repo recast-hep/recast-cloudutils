@@ -1,26 +1,34 @@
 DNS:
   control_center: recast-control.cern.ch
-EnableServiceSSL: 'hello'
 HostPorts: true
 ImagePullPolicy: Always
 ImageTags:
   control_center: git-master
 NodeAffinity: true
 OAuth:
+  Dummy: false
   control_center:
     app_id: 'anappid'
     secret: 'asecret'
 ResourceRequirements: true
+InternalServiceType: ClusterIP
 files:
-  cc_config_yaml: cc_config_yaml
-  cc_ssl_crt: cc_ssl_crt
-  cc_ssl_key: cc_ssl_key
+  cc_config_yaml: dummyvalue_should_be_base64_file_content
+  cc_ssl_crt: dummyvalue_should_be_base64_file_content
+  cc_ssl_key: dummyvalue_should_be_base64_file_content
+
 localsource:
   control_center: 'none'
-recast_api: https://frontend.default.svc.cluster.local:81/
-wflow_server: http://wflow-server.default.svc.cluster.local
-msg_queue: backend-msg-queue.default.svc.cluster.local
-shiptarget: wflow-shiptarget.default.svc.cluster.local
 
-resultsdataclaim: resultsdataclaim
-ccstorageclaim: ccstorageclaim
+recast_api: https://frontend.default.svc.cluster.local:81/
+wflow_shiptarget: wflow-shiptarget.default.svc.cluster.local
+wflow_server: http://wflow-server.default.svc.cluster.local
+msg_queue: infra-msg-queue.default.svc.cluster.local
+
+EnableServiceSSL: 'true'
+RecastApiOrcid: '0000-0000-0000-0000'
+RecastApiSecret: 'asecretvalue'
+
+resultsdataclaim: wflowserver-data
+ccstorageclaim: control-center-data
+database: infra-msg-queue.default.svc.cluster.local

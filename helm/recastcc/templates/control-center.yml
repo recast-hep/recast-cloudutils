@@ -13,7 +13,7 @@ spec:
       - name: control-center
         image: recast/control-center:{{.Values.ImageTags.control_center}}
         imagePullPolicy: {{.Values.ImagePullPolicy }}
-        command: ['recast-control-center','server','--config','/secrets/config/config.yaml']
+        command: ['recast-control-center','server']
         {{ if eq .Values.ResourceRequirements true}}
         resources:
           requests:
@@ -47,6 +47,10 @@ spec:
             mountPath: /recaststorage
             subPath: recaststorage
         env:
+          {{ if eq .Values.OAuth.Dummy true}}
+          - name: RECAST_DUMMY_LOGIN
+            value: 'yes'
+          {{ end }}
           - name: RECAST_BASEURL
             value: https://{{ .Values.DNS.control_center }}
           - name: RECAST_OAUTH_APPID
@@ -64,6 +68,22 @@ spec:
               secretKeyRef:
                 name: control-center-oauth
                 key: secret
+          - name: RECAST_SHIP_USER
+            value: root
+          - name: RECAST_SHIP_HOST
+            value: {{ .Values.shiptarget }}
+          - name: RECAST_SHIP_PORT
+            value: '2022'
+          - name: RECAST_SSL_ENABLE
+            value: '{{ .Values.EnableServiceSSL }}'
+          - name: RECAST_ORCID
+            value: {{ .Values.RecastApiOrcid }}
+          - name: RECAST_APITOKEN
+            value: {{ .Values.RecastApiSecret }}
+          - name: RECAST_WORKFLOW_SERVER
+            value: {{ .Values.wflow_server }}
+          - name: RECAST_OAUTH_REDIRECT_ROUTE
+            value: '/oauth'
           - name: RECAST_BACKENDCONFIGFILE
             value: /secrets/backend/backendconfig.yml
           - name: RECAST_SSL_CERTFILE
@@ -82,22 +102,9 @@ spec:
             value: /recaststorage/catalogue.json
           - name: RECAST_BACKENDCONFIGURL
             value: https://raw.githubusercontent.com/recast-hep/recast-backend/master/recastbackend/resources/backendconfig.yml
-          - name: RECAST_WORKFLOW_SERVER
-            value: {{ .Values.wflow_server }}
-          - name: RECAST_PROCDB_REDIS_HOST
-            value: {{ .Values.msg_queue }}
-          - name: RECAST_PROCDB_REDIS_PORT
-            value: '6379'
-          - name: RECAST_SSL_ENABLE
-            value: {{ .Values.EnableServiceSSL }}
-          - name: RECAST_PROCDB_REDIS_DB
-            value: '0'
-          - name: RECAST_SHIP_USER
-            value: root
-          - name: RECAST_SHIP_HOST
-            value: {{ .Values.shiptarget }}
-          - name: RECAST_SHIP_PORT
-            value: '2022'
+          - name: RECAST_PROCDB_DB
+            value: redis://{{ .Values.database }}
+
       volumes:
       {{ if ne .Values.localsource.control_center "none" }}
       - name: localoverlay
@@ -129,7 +136,7 @@ kind: Service
 metadata:
   name: control-center
 spec:
-  type: NodePort
+  type: {{ .Values.InternalServiceType }}
   ports:
   - port: 80
     targetPort: 8000

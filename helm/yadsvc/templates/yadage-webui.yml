@@ -20,9 +20,9 @@ spec:
             cpu: "0.5"
         {{ end }}
         ports:
-        {{ if eq .Values.HostPorts true}}
           - containerPort: 5000
             name: "http"
+        {{ if eq .Values.HostPorts true}}
             hostPort: 443
         {{ end }}
         volumeMounts:

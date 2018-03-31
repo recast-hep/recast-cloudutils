@@ -12,13 +12,13 @@ ImageTags:
 InternalServiceType: ClusterIP
 ResourceRequirements: true
 files:
-  getkrb_sh: aGVsbG93b3JsZA==
-  getmyproxy_sh: aGVsbG93b3JsZA==
-  grid_crt: aGVsbG93b3JsZA==
-  grid_key: aGVsbG93b3JsZA==
-  krb_keytab: aGVsbG93b3JsZA==
-  shiptarget_id_rsa: aGVsbG93b3JsZA==
-  shiptarget_id_rsa_pub: aGVsbG93b3JsZA==
+  getkrb_sh: dummyvalue_should_be_base64_file_content
+  getmyproxy_sh: dummyvalue_should_be_base64_file_content
+  grid_crt: dummyvalue_should_be_base64_file_content
+  grid_key: dummyvalue_should_be_base64_file_content
+  krb_keytab: dummyvalue_should_be_base64_file_content
+  shiptarget_id_rsa: dummyvalue_should_be_base64_file_content
+  shiptarget_id_rsa_pub: dummyvalue_should_be_base64_file_content
 grid_pw: grid_pw
 wflowserver:
   wflowslots: 10

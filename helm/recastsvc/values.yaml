@@ -2,56 +2,32 @@ ResourceRequirements: true
 NodeAffinity: true
 HostPorts: true
 ImagePullPolicy: Always
-SimplifiedWorker: false
 InternalServiceType: ClusterIP
 DNS:
-  control_center: recast-control.cern.ch
   frontend_server: recast-frontend-beta.cern.ch
-  yadage_service: yadage.cern.ch
 OAuth:
-  control_center:
-    app_id: 'anappid'
-    secret: 'asecret'
   frontend:
     app_id: 'anappid'
     secret: 'asecret'
-  yadage_service:
-    app_id: 'anappid'
-    secret: 'asecret'
 ImageTags:
-  control_center: git-master
-  wflow_server: git-master
-  wflow_logging: git-master
   frontend_server: git-master
   frontend_rest_server: git-master
-  worker: git-master
-  yadage_web: git-master
-Storage:
-  Type: "cephfs"
-  CCSize: 0.1Gi
-  WorkerSize: 0.1Gi
-  FrontendSize: 0.1Gi
-  CephFS:
-    Monitors: []
-    Path: '/a/path/to/cephfs/volume'
-  HostFS:
-    CCPath: /data/pv0001/
-    FrontendPath: /data/pv0002/
-    WorkerPath: /data/pv0003/
-CERNGitLab:
-  User: mycernuser
-  Password: mycernpassword
-yadage:
-  oauth_secret: mysecret
-  bearer_token: mybearer
 localsource:
-  control_center: 'none'
   frontend_server: 'none'
-  rest_server: 'none'
-EnableServiceSSL: 'hello'
-ContainerDetails:
-  redisRoot: false
-  postgresRoot: false
 HostOverlays: false
-wflowserver:
-  wflowslots: 25
+services:
+  database: infra-db.default.svc.cluster.local
+  msgqueue: infra-msg-queue.default.svc.cluster.local
+
+frontendclaim: frontend-data
+
+AWS:
+  bucket: thebucket
+  secret: thesecret
+  keyid: thekei
+
+files:
+  frontend_ssl_crt: dummyvalue_should_be_base64_file_content
+  frontend_ssl_key: dummyvalue_should_be_base64_file_content
+
+api_mastertoken: amastertoken
