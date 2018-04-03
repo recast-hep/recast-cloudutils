@@ -18,12 +18,8 @@ data:
     processors:
       - add_cloud_metadata:
 
-    output.redis:
-      # hosts: ["localhost:32100"]
-      hosts: ["${REDIS_HOST}"]
-      datatype: "channel"
-      key: "logstash:in"
-      id: "metricbeat"
+    output.logstash:
+      hosts: ["${LOGSTASH_HOST}"]
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -97,8 +93,8 @@ spec:
           "-system.hostfs=/hostfs",
         ]
         env:
-        - name: REDIS_HOST
-          value: localhost:32100
+        - name: LOGSTASH_HOST
+          value: {{.Values.logstash_fromhost}}
         - name: POD_NAMESPACE
           valueFrom:
             fieldRef:
@@ -195,8 +191,8 @@ spec:
           "-e",
         ]
         env:
-        - name: REDIS_HOST
-          value: infra-msg-queue.default.svc.cluster.local
+        - name: LOGSTASH_HOST
+          value: {{.Values.logstash_incluster}}
         - name: POD_NAMESPACE
           valueFrom:
             fieldRef:

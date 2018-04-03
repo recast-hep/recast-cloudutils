@@ -17,10 +17,18 @@ data:
         jobid: '{jobid}'
     resources_opts:
       requests:
-        memory: "1Gi"
-        cpu: "500m"
+        {{ if eq .Values.ResourceRequirements true}}
+        memory: "2Gi"
+        cpu: "1000m"
+        {{ else }}
+        {}
+        {{ end }}
       limits:
-        cpu: "500m"
+        {{ if eq .Values.ResourceRequirements true}}
+        cpu: "1000m"
+        {{ else }}
+        {}
+        {{ end }}
   int_template: |
     apiVersion: extensions/v1beta1
     kind: Deployment
@@ -42,6 +50,16 @@ data:
             engine_type: yadage
             interactive: "true"
         spec:
+        {{ if eq .Values.RestrictEngineNodes true}}
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: wflowrole
+                    operator: In
+                    values: [engine-node]
+        {{ end }}
           serviceAccountName: wflowengine
           containers:
           - command:
@@ -65,11 +83,6 @@ data:
             image: recast/yadage-worker:{{.Values.ImageTags.worker}}
             imagePullPolicy: {{.Values.ImagePullPolicy }}
             name: backend-server
-            resources:
-              requests:
-                cpu: "10m"
-              limits:
-                cpu: "10m"
             ports:
             - containerPort: 5000
               name: http
@@ -92,11 +105,6 @@ data:
             image: recast/yadage-worker:{{.Values.ImageTags.worker}}
             imagePullPolicy: {{.Values.ImagePullPolicy }}
             name: engine-server
-            resources:
-              requests:
-                cpu: "10m"
-              limits:
-                cpu: "10m"
             ports:
             - containerPort: 8888
               name: http
@@ -180,6 +188,16 @@ data:
             engine_type: yadage
             interactive: "false"
         spec:
+        {{ if eq .Values.RestrictEngineNodes true}}
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: wflowrole
+                    operator: In
+                    values: [engine-node]
+        {{ end }}
           restartPolicy: Never
           serviceAccountName: wflowengine
           containers:
@@ -196,9 +214,9 @@ data:
             imagePullPolicy: Always
             resources:
               requests:
-                cpu: "10m"
+                cpu: "100m"
               limits:
-                cpu: "10m"
+                cpu: "1000m"
             workingDir: /srv/workerdata
             volumeMounts:
               - name: ssh

@@ -22,3 +22,6 @@ Storage:
     InfraPath: /data/pv0004/
     WorkflowSvcPath: /data/pv0005/
     YadageSvcPath: /data/pv0006/
+
+logstash_incluster: wflow-logging.default.svc.cluster.local:5044
+logstash_fromhost: localhost:32101

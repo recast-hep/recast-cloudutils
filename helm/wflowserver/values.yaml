@@ -10,7 +10,7 @@ ImageTags:
   wflow_logging: git-master
   worker: git-master
 InternalServiceType: ClusterIP
-ResourceRequirements: true
+RestrictEngineNodes: false
 files:
   getkrb_sh: aGVsbG8=
   getmyproxy_sh: aGVsbG8=

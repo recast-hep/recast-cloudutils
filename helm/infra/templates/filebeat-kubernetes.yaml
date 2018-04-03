@@ -23,11 +23,8 @@ data:
     processors:
       - add_cloud_metadata:
 
-    output.redis:
-      hosts: ["infra-msg-queue.default.svc.cluster.local"]
-      datatype: "channel"
-      key: "logstash:in"
-      id: "filebeat"
+    output.logstash:
+      hosts: ["{.Values.logstash_incluster}"]
 ---
 apiVersion: v1
 kind: ConfigMap
