@@ -24,7 +24,7 @@ data:
       - add_cloud_metadata:
 
     output.logstash:
-      hosts: ["{.Values.logstash_incluster}"]
+      hosts: ["{{.Values.logstash_incluster}}"]
 ---
 apiVersion: v1
 kind: ConfigMap
