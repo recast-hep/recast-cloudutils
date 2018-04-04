@@ -28,6 +28,8 @@ spec:
           - name: data
             mountPath: /wflowlogs
             subPath: wflowlogs
+          - name: queuedata
+            mountPath: /queuedata
         env:
           - name: LOGSTASH_REDIS_HOST
             value: {{.Values.infra.msg_queue}}
@@ -39,6 +41,8 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: {{.Values.wflowserverclaim}}
+      - name: queuedata
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

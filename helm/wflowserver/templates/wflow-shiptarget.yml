@@ -12,7 +12,7 @@ spec:
       containers:
       - name: shiptarget
         image: recast/sshd
-        command: ['/entry.sh','bash','-c','cat /secrets/ssh/id_rsa.pub > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config']
+        command: ['/entry.sh','bash','-c','cat /secrets/ssh/id_rsa.pub > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -e -oLogLevel=DEBUG3 -f /etc/ssh/sshd_config']
         volumeMounts:
           - name: ssh
             mountPath: /secrets/ssh

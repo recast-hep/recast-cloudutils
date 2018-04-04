@@ -11,6 +11,7 @@ ImageTags:
   worker: git-master
 InternalServiceType: ClusterIP
 RestrictEngineNodes: false
+ResourceRequirements: false
 files:
   getkrb_sh: aGVsbG8=
   getmyproxy_sh: aGVsbG8=
